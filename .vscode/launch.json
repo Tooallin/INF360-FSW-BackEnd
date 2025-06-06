@@ -1,0 +1,16 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "FastAPI: Uvicorn Debug",
+			"type": "debugpy",
+			"request": "launch",
+			"console": "integratedTerminal",
+			"module": "uvicorn",
+			"args": [
+				"app.main:app",
+				"--reload"
+			]
+		}
+	]
+}
