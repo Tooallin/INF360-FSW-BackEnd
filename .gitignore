@@ -1,4 +1,4 @@
 .python-version
-test.py
-__pycache__/test*.cpython-*.pyc
+app/test.py
+app/__pycache__/test*.cpython-*.pyc
 .env
