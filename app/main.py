@@ -13,7 +13,7 @@ class User(BaseModel):
 async def root():
 	return {"message": "Hello World"}
 
-#Documentacion https://127.0.0.1/docs
-#Documentacion https://127.0.0.1/redoc
+#Documentacion http://127.0.0.1:8000/docs
+#Documentacion http://127.0.0.1:8000/redoc
 
 #Levantar server: uvicorn main:app --reload
