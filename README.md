@@ -3,6 +3,9 @@
 ## Levantar el BackEnd
 ```uvicorn main:app --reload```
 
+## Instalar dependencias
+```pip install -r requirements.txt```
+
 ## Documentación
 - http://127.0.0.1:8000/docs
 - http://127.0.0.1:8000/redoc
