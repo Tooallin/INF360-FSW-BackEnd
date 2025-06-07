@@ -1,5 +1,12 @@
 # INF360-FSW-BackEnd
 
+## Levantar el BackEnd
+```uvicorn main:app --reload```
+
+## Documentación
+- http://127.0.0.1:8000/docs
+- http://127.0.0.1:8000/redoc
+
 ## Arquitectura del BackEnd (Clean Architecture + Modular)
 ```bash
  INF360-FSW-BackEnd/
