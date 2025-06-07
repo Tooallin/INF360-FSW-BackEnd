@@ -1,3 +1,4 @@
 .python-version
 test.py
 __pycache__/test*.cpython-*.pyc
+.env
