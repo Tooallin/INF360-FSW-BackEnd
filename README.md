@@ -7,7 +7,7 @@
 ```pip install -r requirements.txt```
 
 ## Compilar .proto
-```protoc --proto_path=$SRC_DIR --python_out=$DST_DIR $SRC_DIR/addressbook.proto```
+```protoc --proto_path=$SRC_DIR --python_out=$DST_DIR $SRC_DIR/$FILENAME.proto```
 
 ## Documentación
 - http://127.0.0.1:8000/docs
