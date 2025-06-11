@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from app.db.base import Base
+from app.db.session import engine
 
 class User(Base):
 	__tablename__ = "users"
@@ -11,3 +12,5 @@ class User(Base):
 	password = Column(String, nullable=False)
 	age = Column(Integer, nullable=True)
 	gender = Column(String, nullable=True)
+
+Base.metadata.create_all(bind=engine)

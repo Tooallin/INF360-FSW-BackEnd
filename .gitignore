@@ -3,3 +3,5 @@ app/test*.py
 app/__pycache__/test*.cpython-*.pyc
 app/schemas/__pycache__/user*.cpython-*.pyc
 .env
+__pycache__
+.vscode
