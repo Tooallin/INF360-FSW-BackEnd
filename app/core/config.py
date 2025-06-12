@@ -1,4 +1,5 @@
-from pydantic_settings import BaseSettings
+import os
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
 	postgres_user: str
@@ -7,7 +8,10 @@ class Settings(BaseSettings):
 	postgres_host: str = "localhost"
 	postgres_port: str = "5432"
 
-	class Config:
-		env_file = ".env"
+	model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 settings = Settings()
+
+if os.getenv("PYTHONDONTWRITEBYTECODE") == "1":
+	import sys
+	sys.dont_write_bytecode = True
