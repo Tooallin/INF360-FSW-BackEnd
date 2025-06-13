@@ -4,7 +4,7 @@
 ```uvicorn app.main:app --reload```
 
 ## Levantar el BackEnd en producción (terminal debe estar ubicada en la carpeta raíz del proyecto)
-```uvicorn main:app --host 0.0.0.0 --port 8000```
+```uvicorn app.main:app --host 0.0.0.0 --port 8000```
 
 ## Instalar dependencias
 ```pip install -r requirements.txt```
