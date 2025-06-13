@@ -1,6 +1,8 @@
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 def get_id(jwt_token: str):
 	exception = HTTPException(
