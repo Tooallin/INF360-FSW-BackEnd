@@ -10,3 +10,11 @@ class UserCreate(BaseModel):
 
 class UserOut(UserCreate):
 	id: int
+
+class UserLogin(BaseModel):
+	email: str
+	password: str
+
+class UserJWT(BaseModel):
+	access_token: str
+	token_type: str

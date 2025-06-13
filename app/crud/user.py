@@ -1,16 +1,13 @@
 from sqlalchemy.orm import Session
 from app.db.models.user import User
-from app.schemas.user import UserCreate
-from passlib.context import CryptContext
-
-crypt = CryptContext(schemes=["bcrypt"])
+from app.schemas.user import UserCreate, UserLogin
 
 def create(db: Session, user: UserCreate) -> User:
 	db_user = User(
 		name=user.name,
 		surname=user.surname,
 		email=user.email,
-		password=crypt.hash(user.password),
+		password=user.password,
 		age=user.age,
 		gender=user.gender
 	)
@@ -21,3 +18,6 @@ def create(db: Session, user: UserCreate) -> User:
 
 def get_all(db: Session):
 	return db.query(User).all()
+
+def search_user_password(db: Session, user: UserLogin):
+    return db.query(User).filter(User.email == user.email).first()
