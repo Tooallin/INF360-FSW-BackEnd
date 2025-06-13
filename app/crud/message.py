@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from app.db.models.message import Message
-from app.schemas.message import MessageCreate
+from app.schemas.message import MessagePack
 
-def create(db: Session, message: MessageCreate) -> Message:
+def create(db: Session, message: MessagePack) -> Message:
 	db_Message = Message(
 		id_chat=message.id_chat,
 		user_question=message.user_question,
