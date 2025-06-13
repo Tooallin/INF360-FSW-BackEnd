@@ -1,10 +1,10 @@
 from app.schemas.user import UserCreate, UserJWT, UserLogin
 from app.crud import user as Crud
 from sqlalchemy.orm import Session
-from jose import jwt, JWTError
+from jose import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
 import os
 from dotenv import load_dotenv
@@ -39,22 +39,6 @@ def auth_user_by_credentials(user: UserLogin, db: Session):
 		raise exception
 	
 	return user_get.id
-
-def get_id(jwt_token: str):
-	exception = HTTPException(
-		status_code=status.HTTP_401_UNAUTHORIZED,
-		detail="Credenciales de autenticación inválidas",
-		headers={"WWW-Authenticate": "Bearer"})
-	
-	try:
-		username = jwt.decode(jwt_token, os.getenv("SECRET"), algorithms=[os.getenv("ALGORITHM")]).get("sub")
-		if username is None:
-			raise exception
-
-	except JWTError:
-		raise exception
-
-	return username
 
 '''
 #Función pendiente por implementar
