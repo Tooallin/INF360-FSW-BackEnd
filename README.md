@@ -1,7 +1,10 @@
 # INF360-FSW-BackEnd
 
-## Levantar el BackEnd (terminal debe estar ubicada en la carpeta raíz del proyecto)
+## Levantar el BackEnd en desarrollo (terminal debe estar ubicada en la carpeta raíz del proyecto)
 ```uvicorn app.main:app --reload```
+
+## Levantar el BackEnd en producción (terminal debe estar ubicada en la carpeta raíz del proyecto)
+```uvicorn main:app --host 0.0.0.0 --port 8000```
 
 ## Instalar dependencias
 ```pip install -r requirements.txt```
