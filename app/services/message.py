@@ -1,7 +1,8 @@
-from app.services import translate, ia
+from app.utils import ia
 from app.schemas.message import MessageCreate, MessageOut
 from app.crud import message as Crud
 from sqlalchemy.orm import Session
+from app.utils import translate
 
 def create(message: MessageCreate, db: Session):
 	#DE AQUI PARA ABAJO DEBERIA SER UN TRY-CATCH
