@@ -6,3 +6,5 @@ python-dotenv==1.1.0
 python-jose==3.5.0
 passlib==1.7.4
 protobuf==6.31.1
+deep-translator==1.11.4
+requests==2.32.4
