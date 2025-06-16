@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 	postgres_host: str = "localhost"
 	postgres_port: str = "5432"
 
-	deepseek_host: str = "10.147.19.162"
+	deepseek_host: str = "10.147.19.31"
 	deepseek_port: str = "11434"
 
 	deepseek_url: str = f"http://{deepseek_host}:{deepseek_port}/api/generate"
