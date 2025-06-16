@@ -1,6 +1,7 @@
 import requests
 import json
 import re
+from app.utils import translate
 from app.core.config import settings
 
 def generate(message: str):
@@ -8,7 +9,7 @@ def generate(message: str):
 	headers = {"Content-Type": "application/json"}
 	data = {
 		"model": "deepseek-r1:1.5b",
-		"prompt": message,
+		"prompt": translate.to_english(message),
 		"stream": False,
 		"options": {
 			"temperature": 0
