@@ -9,7 +9,7 @@ def generate(message: str):
 	headers = {"Content-Type": "application/json"}
 	data = {
 		"model": "deepseek-r1:1.5b",
-		"prompt": translate.to_english(message),
+		"prompt": "Answer the following prompt carefully, trying not to hurt the person's feelings. The prompt is as follows:" + translate.to_english(message),
 		"stream": False,
 		"options": {
 			"temperature": 0
