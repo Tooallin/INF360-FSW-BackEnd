@@ -3,16 +3,22 @@ from app.schemas.message import MessageCreate, MessagePack, MessageOut
 from app.crud import message as Crud
 from sqlalchemy.orm import Session
 from app.utils import translate
+from fastapi import HTTPException, status
 
 def create(message: MessageCreate, db: Session):
 	#DE AQUI PARA ABAJO DEBERIA SER UN TRY-CATCH
+
+	exception = HTTPException(
+		status_code=status.HTTP_400_BAD_REQUEST,
+		detail="Error al generar respuesta"
+	)
 
 	#CASO DE ERROR EN RESPUESTA DE DEEPSEEK
 	try:
 		ia_response = ia.generate(message=message.user_question)
 		ia_response_spanish = translate.to_spanish(text=ia_response)
 	except Exception as e:
-		raise e  # Vuelve a lanzar la excepción original
+		raise exception  # Vuelve a lanzar la excepción original
 
 	'''
 	response = MessageOut(
