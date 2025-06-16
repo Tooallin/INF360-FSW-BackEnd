@@ -13,10 +13,14 @@ def create(message: MessageCreate, db: Session):
 		detail="Error al generar respuesta"
 	)
 
+	print("Hola que tal")
+
 	#CASO DE ERROR EN RESPUESTA DE DEEPSEEK
 	try:
 		ia_response = ia.generate(message=message.user_question)
+		print("Hola")
 		ia_response_spanish = translate.to_spanish(text=ia_response)
+		print("Adios")
 	except Exception as e:
 		raise exception  # Vuelve a lanzar la excepción original
 

@@ -10,7 +10,7 @@ def generate(message: str):
 		"model": "deepseek-r1:1.5b",
 		"prompt": message,
 		"stream": False,
-		"optiones": {
+		"options": {
 			"temperature": 0
 		},
 	}
