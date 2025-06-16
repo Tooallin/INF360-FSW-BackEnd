@@ -6,16 +6,14 @@ from app.utils import translate
 from fastapi import HTTPException, status
 
 def create_base():
-	exception = HTTPException(
-		status_code=status.HTTP_400_BAD_REQUEST,
-		detail="Error al generar respuesta"
-	)
-
 	try:
 		ia_response = ia.generate_base()
 		ia_response_spanish = translate.to_spanish(text=ia_response)
 	except Exception as e:
-		raise exception
+		raise HTTPException(
+			status_code=status.HTTP_406_NOT_ACCEPTABLE,
+			detail=str(e)
+		)
 
 	response = MessageOut(
 		id=-1,
@@ -39,7 +37,10 @@ def create(message: MessageCreate, db: Session):
 		ia_response = ia.generate(message=message.user_question)
 		ia_response_spanish = translate.to_spanish(text=ia_response)
 	except Exception as e:
-		raise exception  # Vuelve a lanzar la excepción original
+		raise HTTPException(
+			status_code=status.HTTP_406_NOT_ACCEPTABLE,
+			detail=str(e)
+		)
 
 	'''
 	response = MessageOut(
