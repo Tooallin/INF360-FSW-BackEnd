@@ -11,7 +11,7 @@ router = APIRouter()
 def Create(message: MessageCreate, db: Session = Depends(deps.get_db)):
 	return create(message=message, db=db)
 
-@router.post("/createbase", response_model=MessageOut)
+@router.get("/createbase", response_model=MessageOut)
 def CreateBase():
 	return create_base()
 
