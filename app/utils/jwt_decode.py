@@ -1,8 +1,7 @@
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from app.core.config import settings
+
 
 def get_id(jwt_token: str):
 	exception = HTTPException(
@@ -11,7 +10,7 @@ def get_id(jwt_token: str):
 		headers={"WWW-Authenticate": "Bearer"})
 	
 	try:
-		username = jwt.decode(jwt_token, os.getenv("SECRET"), algorithms=[os.getenv("ALGORITHM")]).get("sub")
+		username = jwt.decode(jwt_token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]).get("sub")
 		if username is None:
 			raise exception
 

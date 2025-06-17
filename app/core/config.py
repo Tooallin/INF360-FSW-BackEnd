@@ -11,6 +11,9 @@ class Settings(BaseSettings):
 	deepseek_host: str
 	deepseek_port: str
 
+	jwt_algorithm: str
+	jwt_secret: str
+
 	model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 settings = Settings()

@@ -6,9 +6,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from app.core.config import settings
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="login")
 crypt = CryptContext(schemes=["bcrypt"])
@@ -26,7 +24,7 @@ def login(user: UserLogin, db: Session):
 	expire =  datetime.now(timezone.utc) + timedelta(minutes=int(os.getenv("ACCESS_TOKEN_DURATION")))
 
 	access_token = {"sub": id, "exp": expire}
-	return UserJWT(access_token=jwt.encode(access_token, os.getenv("SECRET"), algorithm=os.getenv("ALGORITHM")),token_type="bearer")
+	return UserJWT(access_token=jwt.encode(access_token, settings.jwt_secret, algorithm=settings.jwt_algorithm),token_type="bearer")
 
 def auth_user_by_credentials(user: UserLogin, db: Session):
 	exception = HTTPException(
@@ -39,26 +37,3 @@ def auth_user_by_credentials(user: UserLogin, db: Session):
 		raise exception
 	
 	return user_get.id
-
-'''
-#Función pendiente por implementar
-async def auth_user_by_jwt(user: UserLogin, db: Session):
-    exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales de autenticación inválidas",
-            headers={"WWW-Authenticate": "Bearer"})
-    
-    try:
-        user_get = Crud.search_user_password(db, user)
-        if user_get is None or not crypt.verify(user.password,user_get.password):
-            raise exception
-        
-        username = jwt.decode(token, os.getenv("SECRET"), algorithms=[os.getenv("ALGORITHM")]).get("sub")
-        if username is None:
-            raise exception
-
-    except JWTError:
-        raise exception
-    
-    return None
-'''
