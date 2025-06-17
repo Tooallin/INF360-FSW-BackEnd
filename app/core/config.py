@@ -9,9 +9,11 @@ class Settings(BaseSettings):
 	postgres_host: str
 	postgres_port: str
 
+	#Conexion LLM
 	deepseek_host: str
 	deepseek_port: str
 
+	#Autenticación
 	jwt_algorithm: str
 	jwt_secret: str
 	access_token_duration: str
