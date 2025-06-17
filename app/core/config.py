@@ -2,6 +2,7 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+	#Config base de datos
 	postgres_user: str
 	postgres_password: str
 	postgres_db: str
@@ -13,6 +14,7 @@ class Settings(BaseSettings):
 
 	jwt_algorithm: str
 	jwt_secret: str
+	access_token_duration: str
 
 	model_config = SettingsConfigDict(env_file=".env", extra="allow")
 

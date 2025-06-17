@@ -21,7 +21,7 @@ def get_all(db: Session):
 
 def login(user: UserLogin, db: Session):
 	id = auth_user_by_credentials(user, db)
-	expire =  datetime.now(timezone.utc) + timedelta(minutes=int(os.getenv("ACCESS_TOKEN_DURATION")))
+	expire =  datetime.now(timezone.utc) + timedelta(minutes=int(settings.access_token_duration))
 
 	access_token = {"sub": id, "exp": expire}
 	return UserJWT(access_token=jwt.encode(access_token, settings.jwt_secret, algorithm=settings.jwt_algorithm),token_type="bearer")
