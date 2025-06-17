@@ -42,22 +42,23 @@ def create(message: MessageCreate, db: Session):
 			detail=str(e)
 		)
 
-	'''
+
 	response = MessageOut(
 		id=1,
-		id_chat=message.id_chat,
+		id_chat=-1,
 		user_question=message.user_question,
-		ia_response=ia_response_spanish
+		#ai_response=ia_response_spanish
+		ai_response=ia_response
 	)
-	'''
 
 	# AQUI UN CASO DE ERROR EN LA BD
-	# ADEMÁS HAY QUE MODIFICAR LO QUE ESPERA Crud.create()
-	response = Crud.create(db, MessagePack(
-		id_chat=message.id_chat,
-		user_question=message.user_question,
-		ai_response=ia_response_spanish
-	))
+	# ADEMÁS HAY QUE MODIFICAR LO QUE ESPERA Crud.create()}
+	
+	#response = Crud.create(db, MessagePack(
+	#	id_chat=message.id_chat,
+	#	user_question=message.user_question,
+	#	ai_response=ia_response_spanish
+	#))
 
 	return response
 

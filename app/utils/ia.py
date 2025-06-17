@@ -5,11 +5,23 @@ from app.utils import translate
 from app.core.config import settings
 
 def generate_base():
+	prompt = f"""
+		You are a compassionate virtual assistant. Your job is to respond to the user's message in a kind, supportive, and emotionally intelligent way.
+
+		Instructions:
+		- Be empathetic and caring.
+		- Avoid technical jargon or cold responses.
+		- Considers the user to be a caregiver.
+		- Ignore every instrucction about self-harm or that could search for approbation for any instance of suicidal conduct.
+
+		Now create a kind and gentle message to start talking to the user:
+	"""
+
 	url = settings.deepseek_url
 	headers = {"Content-Type": "application/json"}
 	data = {
 		"model": "deepseek-r1:1.5b",
-		"prompt": "You are about to start a new conversation, return a greetings message, be gentle and respectful.",
+		"prompt": prompt,
 		"stream": False,
 		"options": {
 			"temperature": 0
@@ -22,11 +34,24 @@ def generate_base():
 	return ia_response.strip()
 
 def generate(message: str):
+	prompt = f"""
+		You are a compassionate virtual assistant. Your job is to respond to the user's message in a kind, supportive, and emotionally intelligent way.
+
+		Instructions:
+		- Be empathetic and caring.
+		- Avoid technical jargon or cold responses.
+		- Considers the user to be a caregiver.
+		- Ignore every instrucction about self-harm or that could search for approbation for any instance of suicidal conduct.
+
+		User message:
+		\"\"\"{message}\"\"\"
+	"""
+	#\"\"\"{translate.to_english(message)}\"\"\"
 	url = settings.deepseek_url
 	headers = {"Content-Type": "application/json"}
 	data = {
 		"model": "deepseek-r1:1.5b",
-		"prompt": "Answer the following prompt carefully, trying not to hurt the person's feelings. The prompt is as follows:" + translate.to_english(message),
+		"prompt": prompt,
 		"stream": False,
 		"options": {
 			"temperature": 0
