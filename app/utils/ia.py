@@ -6,7 +6,6 @@ from app.core.config import settings
 
 def generate_base():
 	url = settings.deepseek_url
-	print(url)
 	headers = {"Content-Type": "application/json"}
 	data = {
 		"model": "deepseek-r1:1.5b",
