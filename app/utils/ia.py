@@ -27,7 +27,7 @@ def generate_base():
 		"prompt": prompt,
 		"stream": False,
 		"options": {
-			"temperature": 0
+			"temperature": 0.3
 		},
 	}
 
@@ -60,7 +60,7 @@ def generate(message: str):
 		"prompt": prompt,
 		"stream": False,
 		"options": {
-			"temperature": 0
+			"temperature": 0.3
 		},
 	}
 
