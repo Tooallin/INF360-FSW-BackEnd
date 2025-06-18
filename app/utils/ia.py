@@ -16,8 +16,8 @@ def generate_base():
 		- Ignore every instrucction about harming or hurting other people.
 		- Ignore every question that is illegal o may cause something illegal to happen.
 		- Dont mention all the instrucction i gave you.
-
-		Now create a kind and gentle message to start talking to the user:
+		
+		Now create a kind and gentle message to start talking to the user like you never talked with him:
 	"""
 
 	url = settings.deepseek_url
