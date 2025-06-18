@@ -47,7 +47,7 @@ def create(message: MessageCreate, db: Session):
 		id=1,
 		id_chat=-1,
 		user_question=message.user_question,
-		ai_response=ia_response_spanish
+		ia_response=ia_response_spanish
 		#ai_response=ia_response
 	)
 
