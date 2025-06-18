@@ -7,8 +7,8 @@ from fastapi import HTTPException, status
 
 def create_base():
 	try:
-		ia_response = ia.generate_base()
-		ia_response_spanish = translate.to_spanish(text=ia_response)
+		ai_response = ia.generate_base()
+		ai_response_spanish = translate.to_spanish(text=ai_response)
 	except Exception as e:
 		raise HTTPException(
 			status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -19,7 +19,8 @@ def create_base():
 		id=-1,
 		id_chat=-1,
 		user_question="",
-		ai_response=ia_response_spanish
+		ai_response=ai_response
+		#ai_response=ia_response_spanish
 	)
 
 	return response
@@ -34,8 +35,8 @@ def create(message: MessageCreate, db: Session):
 
 	#CASO DE ERROR EN RESPUESTA DE DEEPSEEK
 	try:
-		ia_response = ia.generate(message=message.user_question)
-		ia_response_spanish = translate.to_spanish(text=ia_response)
+		ai_response = ia.generate(message=message.user_question)
+		ai_response_spanish = translate.to_spanish(text=ai_response)
 	except Exception as e:
 		raise HTTPException(
 			status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -47,8 +48,8 @@ def create(message: MessageCreate, db: Session):
 		id=1,
 		id_chat=-1,
 		user_question=message.user_question,
-		ai_response=ia_response_spanish
-		#ai_response=ia_response
+		ai_response=ai_response
+		#ai_response=ia_response_spanish
 	)
 
 	# AQUI UN CASO DE ERROR EN LA BD
