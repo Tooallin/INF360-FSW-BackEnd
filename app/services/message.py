@@ -19,8 +19,8 @@ def create_base():
 		id=-1,
 		id_chat=-1,
 		user_question="",
-		ai_response=ai_response
-		#ai_response=ia_response_spanish
+		#ai_response=ai_response
+		ai_response=ai_response_spanish
 	)
 
 	return response
@@ -48,8 +48,8 @@ def create(message: MessageCreate, db: Session):
 		id=1,
 		id_chat=-1,
 		user_question=message.user_question,
-		ai_response=ai_response
-		#ai_response=ia_response_spanish
+		#ai_response=ai_response
+		ai_response=ai_response_spanish
 	)
 
 	# AQUI UN CASO DE ERROR EN LA BD

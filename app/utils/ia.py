@@ -52,7 +52,7 @@ def generate(message: str):
 		User message:
 		\"\"\"{translate.to_english(message)}\"\"\"
 	"""
-	#\"\"\"{message}\"\"\"
+
 	url = settings.deepseek_url
 	headers = {"Content-Type": "application/json"}
 	data = {
