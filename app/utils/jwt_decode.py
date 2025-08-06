@@ -10,11 +10,11 @@ def get_id(jwt_token: str):
 		headers={"WWW-Authenticate": "Bearer"})
 	
 	try:
-		username = jwt.decode(jwt_token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]).get("sub")
-		if username is None:
+		id = jwt.decode(jwt_token, settings.jwt_secret, algorithms=[settings.jwt_algorithm]).get("sub")
+		if id is None:
 			raise exception
 
 	except JWTError:
 		raise exception
 
-	return username
+	return id
