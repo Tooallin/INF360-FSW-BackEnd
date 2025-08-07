@@ -28,9 +28,7 @@ def create_base():
 
 def create(message: MessageCreate, db: Session, id_user: int):
 	# Alguien intentando añadir un mensaje de un chat que no es suyo
-	chats = CrudChat.get_all(db, id_user)
-
-	if next((chat for chat in chats if chat.id == id_chat), None) is None:
+	if CrudChat.get_chat_by_user_and_id(db, id_user, message.id_chat) is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
 			detail="Ocurrió un error inesperado"
@@ -79,9 +77,7 @@ def create(message: MessageCreate, db: Session, id_user: int):
 
 def get_all(id_chat: int, db: Session, id_user: int):
 	# Alguien intentando obtener mensajes de un chat que no es suyo
-	chats = CrudChat.get_all(db, id_user)
-
-	if next((chat for chat in chats if chat.id == id_chat), None) is None:
+	if CrudChat.get_chat_by_user_and_id(db, id_user, message.id_chat) is None:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
 			detail="Ocurrió un error inesperado"
