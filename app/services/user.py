@@ -8,11 +8,19 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import HTTPException, status
 from app.core.config import settings
 
-oauth2 = OAuth2PasswordBearer(tokenUrl="login")
+oauth2 = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 crypt = CryptContext(schemes=["bcrypt"])
 
 
 def create(user: UserCreate, db: Session):
+	userCheck = Crud.search_user_password(db, UserLogin(
+		email=user.email,
+		password=user.password
+	))
+
+	if userCheck is not None:
+		raise HTTPException(status_code=404, detail="Email ya registrado")
+
 	user.password = crypt.hash(user.password)
 	return Crud.create(db, user)
 
@@ -23,7 +31,7 @@ def login(user: UserLogin, db: Session):
 	id = auth_user_by_credentials(user, db)
 	expire =  datetime.now(timezone.utc) + timedelta(minutes=int(settings.access_token_duration))
 
-	access_token = {"sub": id, "exp": expire}
+	access_token = {"sub": str(id), "exp": expire}
 	return UserJWT(access_token=jwt.encode(access_token, settings.jwt_secret, algorithm=settings.jwt_algorithm),token_type="bearer")
 
 def auth_user_by_credentials(user: UserLogin, db: Session):

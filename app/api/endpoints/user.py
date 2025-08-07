@@ -16,5 +16,5 @@ def GetAll(db: Session = Depends(deps.get_db)):
 	return get_all(db=db)
 
 @router.post("/login", response_model=UserJWT)
-def GetAll(user: UserLogin, db: Session = Depends(deps.get_db)):
+def Login(user: UserLogin, db: Session = Depends(deps.get_db)):
 	return login(user=user, db=db)

@@ -1,9 +1,11 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from app.core.config import settings
 
+oauth2 = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 
-def get_id(jwt_token: str):
+def get_id(jwt_token: str = Depends(oauth2)):
 	exception = HTTPException(
 		status_code=status.HTTP_401_UNAUTHORIZED,
 		detail="Credenciales de autenticación inválidas",
@@ -14,7 +16,8 @@ def get_id(jwt_token: str):
 		if id is None:
 			raise exception
 
-	except JWTError:
+	except JWTError as e:
+		print(f"JWT error: {e}")
 		raise exception
 
-	return id
+	return int(id)
