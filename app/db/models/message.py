@@ -1,13 +1,20 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
 from app.db.base import Base
 from app.db.session import engine
+import enum
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Text
+from sqlalchemy.sql import func
+
+class SenderType(enum.Enum):
+	user = "user"
+	ai = "ai"
 
 class Message(Base):
-	__tablename__ = "message"
+	__tablename__ = "messages"
 
 	id = Column(Integer, primary_key=True, index=True)
-	id_chat = Column(Integer, ForeignKey("chat.id"), index=True)
-	user_question = Column(String, nullable=False)
-	ai_response = Column(String, nullable=False)
+	conversation_id = Column(Integer, ForeignKey("conversations.id"), nullable=False, index=True)
+	sender = Column(Enum(SenderType, name='sender_enum'), nullable=False)
+	content = Column(Text, nullable=False)
+	created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 Base.metadata.create_all(bind=engine)

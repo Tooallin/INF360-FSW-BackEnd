@@ -1,14 +1,19 @@
+import enum
+from datetime import datetime
 from pydantic import BaseModel
 
+class SenderType(enum.Enum):
+	user = "user"
+	ai = "ai"
+
 class MessageCreate(BaseModel):
-	id_chat: int
-	user_question: str
+	conversation_id: int
+	sender: SenderType
+	content: str
 	
 class MessageOut(MessageCreate):
 	id: int
-	ai_response: str
-
-class MessagePack(BaseModel):
-	id_chat: int
-	user_question: str
-	ai_response: str
+	conversation_id: int
+	sender: SenderType
+	content: str
+	created_at: datetime

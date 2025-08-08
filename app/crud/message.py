@@ -1,17 +1,17 @@
-from sqlalchemy.orm import Session
 from app.db.models.message import Message
-from app.schemas.message import MessagePack
+from app.schemas.message import MessageCreate
+from sqlalchemy.orm import Session
 
-def create(db: Session, message: MessagePack) -> Message:
+def create(db: Session, message: MessageCreate) -> Message:
 	db_Message = Message(
-		id_chat=message.id_chat,
-		user_question=message.user_question,
-		ai_response=message.ai_response
+		conversation_id=message.conversation_id,
+		sender=message.sender.value if hasattr(message.sender, "value") else message.sender,
+		content=message.content
 	)
 	db.add(db_Message)
 	db.commit()
 	db.refresh(db_Message)
 	return db_Message
 
-def get_all(db: Session, id_chat: int):
-	return db.query(Message).filter(Message.id_chat == id_chat).all()
+def get_conversation(db: Session, conversation_id: int):
+	return db.query(Message).filter(Message.conversation_id == conversation_id).all()
