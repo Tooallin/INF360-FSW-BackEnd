@@ -10,15 +10,15 @@ router = APIRouter()
 
 #Crear el mensaje base de una conversacion para un usuario autenticado
 @router.get("/createbase", response_model=MessageRead)
-def CreateBase(message: MessageCreate, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
-	return create_base(message=message, db=db, user_id=user_id)
+def CreateBase(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id), conversation_id: int = Depends(get_id)):
+	return create_base(db=db, user_id=user_id, conversation_id=conversation_id)
 
 #Crear un nuevo mensaje en una conversacion para un usuario autenticado
-@router.post("/create", response_model=MessageRead)
+@router.post("/create", response_model=List[MessageRead])
 def Create(message: MessageCreate, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
 	return create(message=message, db=db, user_id=user_id)
 
 #Obtener todos los mensajes de una conversacion para un usuario autenticado
-@router.get("/getall/{id_chat}", response_model=List[MessageRead])
+@router.get("/getall/{conversation_id}", response_model=List[MessageRead])
 def GetAll(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id), conversation_id: int = Depends(get_id)):
 	return get_all(db=db, user_id=user_id, conversation_id=conversation_id)

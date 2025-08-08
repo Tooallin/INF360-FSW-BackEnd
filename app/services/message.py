@@ -1,5 +1,3 @@
-import enum
-
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,17 +6,13 @@ from app.crud import message as CrudMessage
 from app.schemas.message import MessageCreate, MessageRead
 from app.utils import ia
 
-class SenderType(enum.Enum):
-	USER = "user"
-	IA = "ia"
-
-def create_base(message: MessageCreate, db: Session, user_id: int):
+def create_base(db: Session, user_id: int, conversation_id: int):
 	#Verificamos que la conversacion pertenezca al usuario
-	conversation = CrudConversation.get_by_user_and_id(db, user_id, message.conversation_id)
+	conversation = CrudConversation.get_by_user_and_id(db, user_id, conversation_id)
 	if not conversation:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
-			detail=f"No se encontró la conversación {message.conversation_id} para el usuario {user_id}."
+			detail=f"No se encontró la conversación {conversation_id} para el usuario {user_id}."
 		)
 
 	#Generamos un mensaje base para la conversación
@@ -38,8 +32,8 @@ def create_base(message: MessageCreate, db: Session, user_id: int):
 	
 	#Una vez generado el mensaje correctamente lo incluimos en la conversacion en la BD
 	base_msg = MessageCreate(
-		conversation_id=message.conversation_id,
-		sender=SenderType.IA,
+		conversation_id=conversation_id,
+		sender=False,
 		content=base_text
 	)
 	saved = CrudMessage.create(db, base_msg)
@@ -55,58 +49,39 @@ def create(message: MessageCreate, db: Session, user_id: int):
 			detail=f"La conversación {message.conversation_id} no existe o no pertenece al usuario {user_id}"
 		)
 	
-	#Comienza la transaccion
+	#Almacenamos el mensaje del usuario
+	user_msg_in = MessageCreate(
+		conversation_id=message.conversation_id,
+		sender=True,
+		content=message.content
+	)
+	user_msg = CrudMessage.create(db, user_msg_in)
+
+	#Obtenemos una respuesta de la IA
 	try:
-		with db.begin():
-			#Almacenamos el mensaje del usuario
-			user_msg = MessageCreate(
-				conversation_id=message.conversation_id,
-				sender=SenderType.USER,
-				content=message.content
-			)
-			db.add(user_msg)
-			db.flush()
-
-			#Obtenemos una respuesta de la IA
-			try:
-				ia_content = "Esto es un mensaje de la IA"
-				#ia_content = ia.generate(message=message.content)
-			except TimeoutError as e:
-				raise HTTPException(
-					status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-					detail=f"Se acabo el tiempo de respuesta de la IA: {str(e)}"
-				)
-			except Exception as e:
-				raise HTTPException(
-					status_code=status.HTTP_502_BAD_GATEWAY,
-					detail=f"Error al consultar IA: {str(e)}"
-				)
-
-			#Almacenamos el mensaje de la IA
-			ia_msg = MessageCreate(
-				conversation_id=message.conversation_id,
-				sender=SenderType.IA,
-				content=ia_content
-			)
-			db.add(ia_msg)
-
-		#Refresh a la BD y return
-		db.refresh(user_msg)
-		db.refresh(ia_msg)
-
-		return {
-			"user_message": MessageRead.model_validate(user_msg).model_dump(),
-			"ia_message": MessageRead.model_validate(ia_msg).model_dump()
-		}
-
-	#Excepciones
-	except HTTPException:
-		raise
+		ia_content = "Esto es un mensaje de la IA"
+		# ia_content = ia.generate(message=message.content)
+	except TimeoutError as e:
+		raise HTTPException(
+			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+			detail=f"Se acabó el tiempo de respuesta de la IA: {str(e)}"
+		)
 	except Exception as e:
 		raise HTTPException(
-			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-			detail=f"Error persistiendo mensajes: {str(e)}"
+			status_code=status.HTTP_502_BAD_GATEWAY,
+			detail=f"Error al consultar IA: {str(e)}"
 		)
+	
+	#Almacenamos la respuesta de la IA
+	ia_msg_in = MessageCreate(
+		conversation_id=message.conversation_id,
+		sender=False,
+		content=ia_content
+	)
+	ia_msg = CrudMessage.create(db, ia_msg_in) 
+	
+	#Retornamos ambos mensajes
+	return [user_msg, ia_msg]
 	
 def get_all(db: Session, user_id: int, conversation_id: int):
 	#Verificamos que la conversacion pertenezca al usuario
@@ -118,4 +93,4 @@ def get_all(db: Session, user_id: int, conversation_id: int):
 		)
 	
 	#Retornamos los mensajes de forma cronologica
-	return CrudMessage.get_all()
+	return CrudMessage.get_all(db, conversation_id)
