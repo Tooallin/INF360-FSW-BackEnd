@@ -1,59 +1,107 @@
-from app.utils import ia
-from app.schemas.message import MessageCreate, MessagePack, MessageOut
-from app.crud import message as Crud
-from app.crud import conversation as CrudChat
-from sqlalchemy.orm import Session
-from app.utils import translate
+import enum
+
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.crud import conversation as CrudConversation
+from app.crud import message as CrudMessage
+from app.schemas.message import MessageCreate, MessageRead
+from app.utils import ia
+
+class SenderType(enum.Enum):
+	USER = "user"
+	IA = "ia"
 
 def create_base(message: MessageCreate, db: Session, user_id: int):
-	return
-
-def create(message: MessageCreate, db: Session, user_id: int):
-	if CrudChat.get_chat_by_user_and_id(db, user_id, message.conversation_id) is None:
+	#Verificamos que la conversacion pertenezca al usuario
+	conversation = CrudConversation.get_by_user_and_id(db, user_id, message.conversation_id)
+	if not conversation:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
-			detail="La conversación no existe o no pertenece a ese usuario."
+			detail=f"No se encontró la conversación {message.conversation_id} para el usuario {user_id}."
 		)
 
+	#Generamos un mensaje base para la conversación
 	try:
-		ai_response = ia.generate(message=message.user_question)
-		ai_response_spanish = translate.to_spanish(text=ai_response)
-	except Exception as e:
+		base_text = ia.generate_base()
+	except ValueError as e:
 		raise HTTPException(
-			status_code=status.HTTP_406_NOT_ACCEPTABLE,
+			status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
 			detail=str(e)
 		)
-
-
-	'''
-	response = MessageOut(
-		id=1,
-		id_chat=-1,
-		user_question=message.user_question,
-		#ai_response=ai_response
-		ai_response=ai_response_spanish
-	)
-	'''
-
-	# AQUI UN CASO DE ERROR EN LA BD
-	# ADEMÁS HAY QUE MODIFICAR LO QUE ESPERA Crud.create()}
+	except Exception as e:
+		raise HTTPException(
+			status_code=status.HTTP_502_BAD_GATEWAY,
+			detail=f"Error al generar mensaje base: {str(e)}"
+		)
 	
-	response = Crud.create(db, MessagePack(
-		id_chat=message.id_chat,
-		user_question=message.user_question,
-		ai_response=ai_response_spanish
-	))
+	#Una vez generado el mensaje correctamente lo incluimos en la conversacion en la BD
+	base_msg = MessageCreate(
+		conversation_id=message.conversation_id,
+		sender=SenderType.IA,
+		content=base_text
+	)
+	saved = CrudMessage.create(db, base_msg)
 
-	return response
+	return MessageRead.model_validate(saved).model_dump()
 
-def get_all(id_chat: int, db: Session, id_user: int):
-	# Alguien intentando obtener mensajes de un chat que no es suyo
-	if CrudChat.get_chat_by_user_and_id(db, id_user, message.id_chat) is None:
+def create(message: MessageCreate, db: Session, user_id: int):
+	#Verificamos que la conversacion pertenezca al usuario
+	conversation = CrudConversation.get_by_user_and_id(db, user_id, message.conversation_id)
+	if not conversation:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
-			detail="Ocurrió un error inesperado"
+			detail=f"La conversación no existe o no pertenece a ese usuario: {str(e)}"
 		)
+	
+	#Comienza la transaccion
+	try:
+		with db.begin():
+			#Almacenamos el mensaje del usuario
+			user_msg = MessageCreate(
+				conversation_id=message.conversation_id,
+				sender=SenderType.USER,
+				content=message.content
+			)
+			db.add(user_msg)
+			db.flush()
 
-	# Si intenta acceder a mensajes de un chat suyo se retorna lo correspondiente
-	return Crud.get_all(db, id_chat)
+			#Obtenemos una respuesta de la IA
+			try:
+				ia_content = ia.generate(message=message.content)
+			except TimeoutError as e:
+				raise HTTPException(
+					status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+					detail=f"Se acabo el tiempo de respuesta de la IA: {str(e)}"
+				)
+			except Exception as e:
+				raise HTTPException(
+					status_code=status.HTTP_502_BAD_GATEWAY,
+					detail=f"Error al consultar IA: {str(e)}"
+				)
+
+			#Almacenamos el mensaje de la IA
+			ia_msg = MessageCreate(
+				conversation_id=message.conversation_id,
+				sender=SenderType.IA,
+				content=ia_content
+			)
+			db.add(ia_msg)
+
+		#Refresh a la BD y return
+		db.refresh(user_msg)
+		db.refresh(ia_msg)
+
+		return {
+			"user_message": MessageRead.model_validate(user_msg).model_dump(),
+			"ia_message": MessageRead.model_validate(ia_msg).model_dump()
+		}
+
+	#Excepciones
+	except HTTPException:
+		raise
+	except Exception as e:
+		raise HTTPException(
+			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+			detail=f"Error persistiendo mensajes: {str(e)}"
+		)

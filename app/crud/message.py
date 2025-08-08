@@ -1,6 +1,7 @@
+from sqlalchemy.orm import Session
+
 from app.db.models.message import Message
 from app.schemas.message import MessageCreate
-from sqlalchemy.orm import Session
 
 def create(db: Session, message: MessageCreate) -> Message:
 	db_Message = Message(

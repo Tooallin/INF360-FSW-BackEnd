@@ -1,19 +1,16 @@
-import enum
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Literal
 
-class SenderType(enum.Enum):
-	user = "user"
-	ai = "ai"
+from pydantic import BaseModel, ConfigDict
 
 class MessageCreate(BaseModel):
+	model_config = ConfigDict(use_enum_values=True)
 	conversation_id: int
-	sender: SenderType
 	content: str
-	
-class MessageOut(MessageCreate):
+
+class MessageRead(BaseModel):
 	id: int
 	conversation_id: int
-	sender: SenderType
+	sender: Literal["user", "ia"]
 	content: str
 	created_at: datetime
