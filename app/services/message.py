@@ -70,7 +70,7 @@ def create(message: MessageCreate, db: Session, id_user: int):
 	response = Crud.create(db, MessagePack(
 		id_chat=message.id_chat,
 		user_question=message.user_question,
-		ai_response=ia_response_spanish
+		ai_response=ai_response_spanish
 	))
 
 	return response
