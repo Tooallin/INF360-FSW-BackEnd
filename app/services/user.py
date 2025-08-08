@@ -1,12 +1,14 @@
-from app.schemas.user import UserCreate, UserJWT, UserLogin
-from app.crud import user as Crud
-from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, timezone
+
+from fastapi import HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
-from datetime import datetime, timedelta, timezone
-from fastapi.security import OAuth2PasswordBearer
-from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+
 from app.core.config import settings
+from app.crud import user as Crud
+from app.schemas.user import UserCreate, UserJWT, UserLogin
 
 oauth2 = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 crypt = CryptContext(schemes=["bcrypt"])

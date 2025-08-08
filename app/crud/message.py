@@ -16,3 +16,12 @@ def create(db: Session, message: MessageCreate) -> Message:
 
 def get_conversation(db: Session, conversation_id: int):
 	return db.query(Message).filter(Message.conversation_id == conversation_id).all()
+
+def get_all(db: Session, conversation_id: int):
+	db_Messages = (
+		db.query(Message)
+		.filter(Message.conversation_id == conversation_id)
+		.order_by(Message.created_at.asc(), Message.id.asc())
+		.all()
+	)
+	return db_Messages

@@ -23,7 +23,8 @@ def create_base(message: MessageCreate, db: Session, user_id: int):
 
 	#Generamos un mensaje base para la conversación
 	try:
-		base_text = ia.generate_base()
+		base_text = "Esto es un texto base"
+		#base_text = ia.generate_base()
 	except ValueError as e:
 		raise HTTPException(
 			status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -51,7 +52,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	if not conversation:
 		raise HTTPException(
 			status_code=status.HTTP_404_NOT_FOUND,
-			detail=f"La conversación no existe o no pertenece a ese usuario: {str(e)}"
+			detail=f"La conversación {message.conversation_id} no existe o no pertenece al usuario {user_id}"
 		)
 	
 	#Comienza la transaccion
@@ -68,7 +69,8 @@ def create(message: MessageCreate, db: Session, user_id: int):
 
 			#Obtenemos una respuesta de la IA
 			try:
-				ia_content = ia.generate(message=message.content)
+				ia_content = "Esto es un mensaje de la IA"
+				#ia_content = ia.generate(message=message.content)
 			except TimeoutError as e:
 				raise HTTPException(
 					status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -105,3 +107,15 @@ def create(message: MessageCreate, db: Session, user_id: int):
 			status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 			detail=f"Error persistiendo mensajes: {str(e)}"
 		)
+	
+def get_all(db: Session, user_id: int, conversation_id: int):
+	#Verificamos que la conversacion pertenezca al usuario
+	conversation = CrudConversation.get_by_user_and_id(db, user_id, conversation_id)
+	if not conversation:
+		raise HTTPException(
+			status_code=status.HTTP_404_NOT_FOUND,
+			detail=f"La conversación {conversation_id} no existe o no pertenece al usuario {user_id}"
+		)
+	
+	#Retornamos los mensajes de forma cronologica
+	return CrudMessage.get_all()
