@@ -20,5 +20,5 @@ def Create(message: MessageCreate, db: Session = Depends(deps.get_db), user_id: 
 
 #Obtener todos los mensajes de una conversacion para un usuario autenticado
 @router.get("/getall/{conversation_id}", response_model=List[MessageRead])
-def GetAll(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id), conversation_id: int = Depends(get_id)):
+def GetAll(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id), conversation_id: int):
 	return get_all(db=db, user_id=user_id, conversation_id=conversation_id)

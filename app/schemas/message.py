@@ -8,6 +8,7 @@ class MessageCreate(BaseModel):
 	conversation_id: int
 	content: str
 
+	#Parsear a 1 o 0 siempre
 	@field_validator("sender")
 	@classmethod
 	def sender_must_be_0_or_1(cls, v: int) -> int:
@@ -25,6 +26,7 @@ class MessageRead(BaseModel):
 	content: str
 	created_at: datetime
 
+	#Parsear a 1 o 0 siempre
 	@field_serializer("sender")
 	def serialize_sender(self, v: bool) -> int:
 		return 1 if v else 0
