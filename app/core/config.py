@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 	jwt_secret: str
 	access_token_duration: str
 
+	#gemini
+	gemini_api_key: str
+
 	model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
 settings = Settings()

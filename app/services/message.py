@@ -17,8 +17,7 @@ def create_base(db: Session, user_id: int, conversation_id: int):
 
 	#Generamos un mensaje base para la conversación
 	try:
-		base_text = "Esto es un texto base"
-		#base_text = ia.generate_base()
+		base_text = ia.generate_base()
 	except ValueError as e:
 		raise HTTPException(
 			status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -59,8 +58,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 
 	#Obtenemos una respuesta de la IA
 	try:
-		ia_content = "Esto es un mensaje de la IA"
-		# ia_content = ia.generate(message=message.content)
+		ia_content = ia.generate(message=message.content)
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
