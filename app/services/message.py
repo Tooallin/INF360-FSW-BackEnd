@@ -77,7 +77,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 		content=ia_content
 	)
 	ia_msg = CrudMessage.create(db, ia_msg_in) 
-	
+	CrudConversation.update_date(db, message.conversation_id)
 	#Retornamos ambos mensajes
 	return [user_msg, ia_msg]
 	
