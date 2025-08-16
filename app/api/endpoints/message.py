@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.api import deps
-from app.schemas.message import MessageCreate, MessageRead
+from app.schemas.message import MessageCreate, MessageRead, MessageIA
 from app.services.message import create, create_base, get_all
 from typing import List
 from sqlalchemy.orm import Session
