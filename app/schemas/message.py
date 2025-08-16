@@ -30,3 +30,7 @@ class MessageRead(BaseModel):
 	@field_serializer("sender")
 	def serialize_sender(self, v: bool) -> int:
 		return 1 if v else 0
+
+class MessageIA(BaseModel):
+	model_config = ConfigDict(from_attributes=True)
+	content: str

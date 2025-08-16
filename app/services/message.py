@@ -3,19 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.crud import conversation as CrudConversation
 from app.crud import message as CrudMessage
-from app.schemas.message import MessageCreate, MessageRead
+from app.schemas.message import MessageCreate, MessageRead, MessageIA
 from app.utils import ia
 
-def create_base(db: Session, user_id: int, conversation_id: int):
-	#Verificamos que la conversacion pertenezca al usuario
-	conversation = CrudConversation.get_by_user_and_id(db, user_id, conversation_id)
-	if not conversation:
-		raise HTTPException(
-			status_code=status.HTTP_404_NOT_FOUND,
-			detail=f"No se encontró la conversación {conversation_id} para el usuario {user_id}."
-		)
-
-	#Generamos un mensaje base para la conversación
+def create_base(db: Session, user_id: int):
 	try:
 		base_text = ia.generate_base()
 	except ValueError as e:
@@ -28,16 +19,8 @@ def create_base(db: Session, user_id: int, conversation_id: int):
 			status_code=status.HTTP_502_BAD_GATEWAY,
 			detail=f"Error al generar mensaje base: {str(e)}"
 		)
-	
-	#Una vez generado el mensaje correctamente lo incluimos en la conversacion en la BD
-	base_msg = MessageCreate(
-		conversation_id=conversation_id,
-		sender=False,
-		content=base_text
-	)
-	saved = CrudMessage.create(db, base_msg)
 
-	return MessageRead.model_validate(saved).model_dump()
+	return MessageIA(content=ia_content)
 
 def create(message: MessageCreate, db: Session, user_id: int):
 	#Verificamos que la conversacion pertenezca al usuario

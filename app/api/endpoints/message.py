@@ -9,9 +9,9 @@ from app.utils.jwt_decode import get_id
 router = APIRouter()
 
 #Crear el mensaje base de una conversacion para un usuario autenticado
-@router.get("/createbase", response_model=MessageRead)
-def CreateBase(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id), conversation_id: int = Depends(get_id)):
-	return create_base(db=db, user_id=user_id, conversation_id=conversation_id)
+@router.get("/createbase", response_model=MessageIA)
+def CreateBase(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
+	return create_base(db=db, user_id=user_id)
 
 #Crear un nuevo mensaje en una conversacion para un usuario autenticado
 @router.post("/create", response_model=List[MessageRead])

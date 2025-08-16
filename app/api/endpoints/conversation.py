@@ -10,8 +10,8 @@ router = APIRouter()
 
 #Crear una nueva conversacion para un usuario autenticado
 @router.post("/create", response_model=ConversationOut)
-def Create(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
-	return create(db=db, user_id=user_id)
+def Create(conversation: ConversationCreate, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
+	return create(conversation=conversation, db=db, user_id=user_id)
 
 #Obtener todas las conversaciones de un usuario autenticado
 @router.get("/getall", response_model=List[ConversationOut])
