@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Session
 
-from app.crud import conversation as Crud
+from app.crud import conversation as CrudConversation
+from app.crud import message as CrudMessage
 from app.schemas.conversation import ConversationCreate
+from app.schemas.message import MessageCreate
 
 def create(conversation: ConversationCreate, db: Session, user_id: int):
-	new_conversation = Crud.create(db, user_id)
+	new_conversation = CrudConversation.create(db, user_id)
 	
 	#Almacenamos el saludo de la IA
 	ia_msg_in = MessageCreate(
@@ -19,4 +21,4 @@ def create(conversation: ConversationCreate, db: Session, user_id: int):
 	return new_conversation
 
 def get_all(db: Session, user_id: int):
-	return Crud.get_all(db, user_id)
+	return CrudConversation.get_all(db, user_id)
