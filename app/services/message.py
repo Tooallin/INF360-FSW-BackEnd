@@ -20,7 +20,7 @@ def create_base(db: Session, user_id: int):
 			detail=f"Error al generar mensaje base: {str(e)}"
 		)
 
-	return MessageIA(content=ia_content)
+	return MessageIA(content=base_text)
 
 def create(message: MessageCreate, db: Session, user_id: int):
 	#Verificamos que la conversacion pertenezca al usuario
