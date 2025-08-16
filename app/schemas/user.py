@@ -1,12 +1,13 @@
 from pydantic import BaseModel
+from typing import Optional
 
 class UserCreate(BaseModel):
 	name: str
-	surname: str
+	surname: Optional[str] = None  # Opcional
 	email: str
 	password: str
-	age: int
-	gender: str
+	age: Optional[int] = None      # Opcional
+	gender: Optional[str] = None   # Opcional
 
 class UserOut(UserCreate):
 	id: int
