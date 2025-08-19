@@ -2,9 +2,17 @@ import requests
 import json
 import re
 import google.generativeai as genai
+from typing import List
 
 from app.utils import translate
 from app.core.config import settings
+
+def embed_message(content: str) -> List[float]:
+	embedding = genai.embed_content(
+		model=settings.embedding_model,
+		content=content
+	)
+	return embedding["embedding"]
 
 def generate_base():
 	prompt = f"""

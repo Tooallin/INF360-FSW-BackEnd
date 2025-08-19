@@ -2,24 +2,27 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-	#Config base de datos
+	#PostgreSQL Environment
 	postgres_user: str
 	postgres_password: str
 	postgres_db: str
 	postgres_host: str
 	postgres_port: str
 
-	#Conexion LLM
+	#DeepSeek Environment
 	deepseek_host: str
 	deepseek_port: str
 
-	#Autenticación
+	#JWT Environment
 	jwt_algorithm: str
 	jwt_secret: str
 	access_token_duration: str
 
-	#gemini
+	#Gemini Environment
 	gemini_api_key: str
+	gemini_model: str
+	embedding_model: str
+	embedding_dimension: int
 
 	model_config = SettingsConfigDict(env_file=".env", extra="allow")
 
