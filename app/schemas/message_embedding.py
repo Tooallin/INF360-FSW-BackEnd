@@ -18,7 +18,7 @@ class MessageEmbeddingCreate(BaseModel):
 	def serialize_embedding(self, v):
 		return list(v)
 
-class MessageEmbeddingGetKSimilar(BaseModel):
+class MessageEmbeddingGet(BaseModel):
 	conversation_id: int
 	embedding: List[float]
 	k: int

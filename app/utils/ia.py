@@ -1,11 +1,25 @@
-import requests
-import json
-import re
 import google.generativeai as genai
-from typing import List
+from google.generativeai.types import content_types
+from typing import List, Tuple
 
-from app.utils import translate
 from app.core.config import settings
+
+def build_history(base: List[Tuple[str, str]], similar: List[Tuple[str, str]]) -> List[content_types.ContentDict]:
+	seen = set()
+	ordered: List[Tuple[str, str]] = []
+	for r, c in similar + base:
+		key = (r, c)
+		if key not in seen:
+			seen.add(key)
+			ordered.append(key)
+	
+	history = []
+	for role, content in ordered:
+		history.append({
+			"role": role,
+			"parts": [{"text": content}]
+		})
+	return history
 
 def embed_message(content: str) -> List[float]:
 	embedding = genai.embed_content(

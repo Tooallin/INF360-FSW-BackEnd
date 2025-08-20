@@ -4,12 +4,12 @@ from pydantic import BaseModel, ConfigDict, field_validator, field_serializer
 
 class MessageCreate(BaseModel):
 	model_config = ConfigDict(use_enum_values=True)
-	sender: int
+	role: int
 	conversation_id: int
 	content: str
 
 	#Parsear a 1 o 0 siempre
-	@field_validator("sender")
+	@field_validator("role")
 	@classmethod
 	def sender_must_be_0_or_1(cls, v: int) -> int:
 		if isinstance(v, bool):

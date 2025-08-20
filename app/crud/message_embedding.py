@@ -3,7 +3,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.db.models.message_embedding import MessageEmbedding
-from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGetKSimilar
+from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
 
 def create(db: Session, messageEmbedding: MessageEmbeddingCreate) -> MessageEmbedding:
 	db.add(messageEmbedding)
@@ -11,7 +11,7 @@ def create(db: Session, messageEmbedding: MessageEmbeddingCreate) -> MessageEmbe
 	db.refresh(messageEmbedding)
 	return messageEmbedding
 
-def get_k_similar_messages(db: Session, payload: MessageEmbeddingGetKSimilar):
+def get_similar(db: Session, payload: MessageEmbeddingGet):
 	query = text("""
 		SELECT m.sender, m.content
 		FROM message m
