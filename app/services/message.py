@@ -34,7 +34,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	#Almacenamos el mensaje del usuario
 	user_msg_in = MessageCreate(
 		conversation_id=message.conversation_id,
-		sender=True,
+		role="user",
 		content=message.content
 	)
 	user_msg = CrudMessage.create(db, user_msg_in)
@@ -56,7 +56,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	#Almacenamos la respuesta de la IA
 	ia_msg_in = MessageCreate(
 		conversation_id=message.conversation_id,
-		sender=False,
+		role="assistant",
 		content=ia_content
 	)
 	ia_msg = CrudMessage.create(db, ia_msg_in) 

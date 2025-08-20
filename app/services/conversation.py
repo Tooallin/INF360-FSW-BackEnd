@@ -11,7 +11,7 @@ def create(conversation: ConversationCreate, db: Session, user_id: int):
 	#Almacenamos el saludo de la IA
 	ia_msg_in = MessageCreate(
 		conversation_id=new_conversation.id,
-		sender=False,
+		role="assistant",
 		content=conversation.ia_msg_in
 	)
 	ia_msg = CrudMessage.create(db, ia_msg_in) 

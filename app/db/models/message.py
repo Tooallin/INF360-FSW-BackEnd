@@ -8,6 +8,6 @@ class Message(Base):
 
 	id = Column(Integer, primary_key=True, index=True)
 	conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False, index=True)
-	role = Column(Boolean, nullable=False, server_default="true")
+	role = Column(Text, nullable=False)
 	content = Column(Text, nullable=False)
 	created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

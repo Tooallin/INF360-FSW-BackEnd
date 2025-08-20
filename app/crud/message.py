@@ -6,7 +6,7 @@ from app.schemas.message import MessageCreate
 def create(db: Session, message: MessageCreate) -> Message:
 	db_Message = Message(
 		conversation_id=message.conversation_id,
-		sender=message.sender.value if hasattr(message.sender, "value") else message.sender, #Caso en que sea un objeto el sender (cosa que nunca ocurre)
+		role=message.role,
 		content=message.content
 	)
 	db.add(db_Message)

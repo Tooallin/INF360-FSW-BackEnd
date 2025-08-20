@@ -13,7 +13,7 @@ def create(db: Session, messageEmbedding: MessageEmbeddingCreate) -> MessageEmbe
 
 def get_similar(db: Session, payload: MessageEmbeddingGet):
 	query = text("""
-		SELECT m.sender, m.content
+		SELECT m.role, m.content
 		FROM message m
 		JOIN message_embedding me ON me.message_id = m.id
 		WHERE m.conversation_id = :conv_id

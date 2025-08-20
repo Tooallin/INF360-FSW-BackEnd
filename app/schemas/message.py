@@ -4,32 +4,24 @@ from pydantic import BaseModel, ConfigDict, field_validator, field_serializer
 
 class MessageCreate(BaseModel):
 	model_config = ConfigDict(use_enum_values=True)
-	role: int
+	role: str
 	conversation_id: int
 	content: str
 
-	#Parsear a 1 o 0 siempre
 	@field_validator("role")
 	@classmethod
-	def sender_must_be_0_or_1(cls, v: int) -> int:
-		if isinstance(v, bool):
-			return 1 if v else 0
-		if v in (0, 1):
-			return v
-		raise ValueError("El campo sender debe ser 0 (IA) o 1 (user)")
+	def role_must_be_user_or_assistant(cls, v: str) -> str:
+		if isinstance(v, str) and v.lower() in {"user", "assistant"}:
+			return v.lower()
+		raise ValueError("El campo role debe ser 'user' o 'assistant'")
 
 class MessageRead(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
 	id: int
 	conversation_id: int
-	sender: bool
+	role: str
 	content: str
 	created_at: datetime
-
-	#Parsear a 1 o 0 siempre
-	@field_serializer("sender")
-	def serialize_sender(self, v: bool) -> int:
-		return 1 if v else 0
 
 class MessageIA(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
