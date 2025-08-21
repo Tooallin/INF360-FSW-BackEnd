@@ -6,6 +6,9 @@ from app.crud import message as CrudMessage
 from app.schemas.message import MessageCreate, MessageRead, MessageIA
 from app.utils import ia
 
+from app.crud import message_embedding as CrudMessageEmbedding
+from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
+
 def create_base(db: Session, user_id: int):
 	try:
 		base_text = ia.generate_base()
@@ -38,10 +41,12 @@ def create(message: MessageCreate, db: Session, user_id: int):
 		content=message.content
 	)
 	user_msg = CrudMessage.create(db, user_msg_in)
+	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=user_msg.id, embedding=ia.embed_message(user_msg.content)))
 
 	#Obtenemos una respuesta de la IA
 	try:
-		ia_content = ia.generate(message=message.content)
+		memory_size = 10
+		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message))
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -60,6 +65,8 @@ def create(message: MessageCreate, db: Session, user_id: int):
 		content=ia_content
 	)
 	ia_msg = CrudMessage.create(db, ia_msg_in) 
+	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=ia_msg.id, embedding=ia.embed_message(ia_msg.content)))
+
 	CrudConversation.update_date(db, message.conversation_id)
 	#Retornamos ambos mensajes
 	return [user_msg, ia_msg]
@@ -75,3 +82,12 @@ def get_all(db: Session, user_id: int, conversation_id: int):
 	
 	#Retornamos los mensajes de forma cronologica
 	return CrudMessage.get_all(db, conversation_id)
+
+def generate_context(db: Session, k: int, user_msg_in: MessageCreate):
+	last_k = CrudMessage.get_last_k(db, user_msg_in.conversation_id, k)
+	similar_k = CrudMessageEmbedding.get_similar(db, MessageEmbeddingGet(
+		conversation_id=user_msg_in.conversation_id,
+		embedding=ia.embed_message(user_msg_in.content),
+		k=k
+	))
+	return ia.build_history(last_k, similar_k)
