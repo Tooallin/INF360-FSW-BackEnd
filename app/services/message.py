@@ -56,7 +56,7 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	#Almacenamos la respuesta de la IA
 	ia_msg_in = MessageCreate(
 		conversation_id=message.conversation_id,
-		role="assistant",
+		role="model",
 		content=ia_content
 	)
 	ia_msg = CrudMessage.create(db, ia_msg_in) 

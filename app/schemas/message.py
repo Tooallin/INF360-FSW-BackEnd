@@ -10,10 +10,10 @@ class MessageCreate(BaseModel):
 
 	@field_validator("role")
 	@classmethod
-	def role_must_be_user_or_assistant(cls, v: str) -> str:
-		if isinstance(v, str) and v.lower() in {"user", "assistant"}:
+	def role_must_be_user_or_model(cls, v: str) -> str:
+		if isinstance(v, str) and v.lower() in {"user", "model"}:
 			return v.lower()
-		raise ValueError("El campo role debe ser 'user' o 'assistant'")
+		raise ValueError("El campo role debe ser 'user' o 'model'")
 
 class MessageRead(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
