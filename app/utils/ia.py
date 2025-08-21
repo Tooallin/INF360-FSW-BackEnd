@@ -96,7 +96,7 @@ def generate(message: str, context: List[content_types.ContentDict]):
 
 	# Añadir las instrucciones base iniciales
 	context.insert(0, {
-			"role": "system",
+			"role": "user",
 			"parts": [{"text": base_instructions}]
 		}
 	)

@@ -6,18 +6,22 @@ from app.db.models.message_embedding import MessageEmbedding
 from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
 
 def create(db: Session, messageEmbedding: MessageEmbeddingCreate) -> MessageEmbedding:
-	db.add(messageEmbedding)
+	db_embedding = MessageEmbedding(
+        message_id=messageEmbedding.message_id,
+        embedding=messageEmbedding.embedding
+    )
+	db.add(db_embedding)
 	db.commit()
-	db.refresh(messageEmbedding)
-	return messageEmbedding
+	db.refresh(db_embedding)
+	return db_embedding
 
 def get_similar(db: Session, payload: MessageEmbeddingGet):
 	query = text("""
 		SELECT m.role, m.content
-		FROM message m
-		JOIN message_embedding me ON me.message_id = m.id
+		FROM messages m
+		JOIN message_embeddings me ON me.message_id = m.id
 		WHERE m.conversation_id = :conv_id
-		ORDER BY me.embedding <-> :qemb
+		ORDER BY me.embedding <-> CAST(:qemb AS vector)
 		LIMIT :k;
 	""")
 	result = db.execute(query, {
