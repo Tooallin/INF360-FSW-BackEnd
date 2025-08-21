@@ -6,5 +6,5 @@ __pycache__
 .vscode/launch.json
 
 docker-compose.yaml
-Dockerfile
-comandos.txt
+BackendDockerfile
+PostgresDockerfile

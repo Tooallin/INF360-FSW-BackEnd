@@ -19,12 +19,12 @@ def get_conversation(db: Session, conversation_id: int):
 
 def get_last_k(db: Session, conversation_id: int, k: int):
 	db_Messages = (
-		db.query(Message)
+		db.query(Message.role, Message.content)
 		.filter(Message.conversation_id == conversation_id)
-		.order_by(Message.created_at.des(), Message.id.asc())
+		.order_by(Message.created_at.desc(), Message.id.asc())
 		.limit(k)
 	)
-	return db_Messages
+	return db_Messages.all()
 
 def get_all(db: Session, conversation_id: int):
 	db_Messages = (
