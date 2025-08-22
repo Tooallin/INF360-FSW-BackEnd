@@ -27,6 +27,9 @@ def search_user_password(db: Session, user: UserLogin):
 def get_medical_record(db: Session, id: int):
     return db.query(User.name, User.surname, User.age, User.gender, User.profesion, User.hobbies).filter(User.id == id).first()
 
+def get_hobbies(db: Session, id: int):
+    return db.query(User.hobbies).filter(User.id == id).first()
+
 def update_user(db: Session, user: UserCreate, user_id: int) -> User:
     db_user = db.query(User).filter(User.id == user_id).first()
 
