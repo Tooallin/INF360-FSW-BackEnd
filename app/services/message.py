@@ -45,12 +45,12 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=user_msg.id, embedding=ia.embed_message(user_msg.content)))
 
 	#Procesar y actualizar historial clinico
-	update_and_process_clinical_report(db, message, user_id)
+	update_and_process_clinical_history(db, message, user_id)
 
 	#Obtenemos una respuesta de la IA
 	try:
 		memory_size = 10
-		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_record(CrudUser.get_medical_record()))
+		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_history(CrudUser.get_clinical_history()))
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -96,18 +96,18 @@ def generate_context(db: Session, k: int, user_msg_in: MessageCreate):
 	))
 	return ia.build_history(last_k, similar_k)
 
-def update_and_process_medical_record(db: Session, message: MessageCreate, user_id: int):
+def update_and_process_clinical_history(db: Session, message: MessageCreate, user_id: int):
 	#Actualizar historial clinico
 	try:
 		old_hobbies = CrudUser.get_hobbies(db, user_id)
-		clinical_record = ia.new_clinical_record(message=message.content, hobbies_string=ia.format_clinical_record(old_hobbies))
+		clinical_history = ia.new_clinical_history(message=message.content, hobbies_string=ia.format_clinical_history(old_hobbies))
 		CrudUser.update_user(db, UserCreate(
-			name=clinical_record.name,
-			surname=clinical_record.surname,
-			age=clinical_record.age,
-			gender=clinical_record.age,
-			profesion=clinical_record.profesion,
-			hobbies=clinical_record.hobbies
+			name=clinical_history.name,
+			surname=clinical_history.surname,
+			age=clinical_history.age,
+			gender=clinical_history.age,
+			profesion=clinical_history.profesion,
+			hobbies=clinical_history.hobbies
 		), user_id)
 	except TimeoutError as e:
 		raise HTTPException(

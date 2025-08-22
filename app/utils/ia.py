@@ -95,7 +95,7 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 		- No hagas suposiciones si no tienes información suficiente.
 
 		Información del usuario: 
-		{format_clinical_record(user_record)}
+		{format_clinical_history(user_record)}
 	"""
 
 	genai.configure(api_key=settings.gemini_api_key)
@@ -113,7 +113,7 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 	response = chat.send_message(message)
 	return response.text
 
-def new_clinical_record(message: str, hobbies_string: str):
+def new_clinical_history(message: str, hobbies_string: str):
 	update_extraction_prompt = f"""
 	Eres un sistema que analiza texto en lenguaje natural para identificar cambios solicitados por el usuario en su perfil personal. Tu única tarea es revisar el contenido del mensaje y devolver un objeto estructurado en el siguiente formato, **sin explicar nada adicional**:
 
@@ -177,7 +177,7 @@ def new_clinical_record(message: str, hobbies_string: str):
 		except:
 			raise ValueError(f"No se pudo interpretar la respuesta del modelo:\n{raw_output}")
 
-def format_clinical_record(user_record: UserCreate):
+def format_clinical_history(user_record: UserCreate):
     """
     Genera un texto narrativo a partir de un objeto clínico con campos:
     name, surname, age, gender, profesion, hobbies

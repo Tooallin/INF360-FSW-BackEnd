@@ -24,7 +24,7 @@ def get_all(db: Session):
 def search_user_password(db: Session, user: UserLogin):
     return db.query(User).filter(User.email == user.email).first()
 
-def get_medical_record(db: Session, id: int):
+def get_clinical_history(db: Session, id: int):
     return db.query(User.name, User.surname, User.age, User.gender, User.profesion, User.hobbies).filter(User.id == id).first()
 
 def get_hobbies(db: Session, id: int):
