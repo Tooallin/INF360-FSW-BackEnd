@@ -113,74 +113,52 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 	response = chat.send_message(message)
 	return response.text
 
-def new_clinical_record(message: str):
-	update_extraction_prompt = """
+def new_clinical_record(message: str, hobbies_string: str):
+	update_extraction_prompt = f"""
 	Eres un sistema que analiza texto en lenguaje natural para identificar cambios solicitados por el usuario en su perfil personal. Tu única tarea es revisar el contenido del mensaje y devolver un objeto estructurado en el siguiente formato, **sin explicar nada adicional**:
 
 	Formato de salida:
-	{
+	{{
 		"name": "<nuevo_nombre_o_null>",
 		"surname": "<nuevo_apellido_o_null>",
 		"age": <nueva_edad_o_null>,
 		"gender": "<nuevo_genero_o_null>",
 		"profesion": "<nueva_profesion_o_null>",
 		"hobbies": [<nueva_lista_de_hobbies_o_null>]
-	}
+	}}
 
 	Instrucciones:
-	- Solo incluye los campos si el usuario expresa **explícitamente** que desea **cambiar** o **actualizar** ese dato.
+	- Solo incluye los campos si el mensaje indica, de forma directa o indirecta, que el usuario desea modificar, actualizar o reemplazar esa información, **y siempre que esté claro que se refiere a sí mismo (no a otra persona).**
 	- Si un campo no se menciona como un cambio claro, usa **null**.
-	- Para `hobbies`, si el usuario desea agregarlos, actualizarlos o cambiarlos, incluye la nueva lista completa.
+	- Para `hobbies`, si el usuario desea agregarlos, eliminarlos o cambiarlos, genera una nueva lista completa.
+	- Usa como referencia los hobbies anteriores del usuario: {hobbies_string}.
+	- Si el usuario menciona que quiere quitar o reemplazar hobbies, actualiza la lista según lo que diga y devuelve solo la lista resultante final.
 	- **No incluyas email ni contraseña, incluso si el usuario lo menciona.**
 	- No expliques nada, no escribas texto adicional, no repitas las instrucciones.
 	- No inventes datos ni asumas cambios implícitos.
 
-	Ejemplos:
+	Ejemplo:
+
+	Hobbies anteriores: ["correr", "leer", "dibujar"]
 
 	Entrada del usuario:
-	> "Hola, quiero cambiar mi profesión. Ahora soy psicólogo."
+	> "Ya no me entretiene correr y dibujar. Ahora me interesa hacer yoga."
 
 	Salida:
-	{
-		"name": null,
-		"surname": null,
-		"age": null,
-		"gender": null,
-		"profesion": "psicólogo",
-		"hobbies": null
-	}
-
-	Entrada del usuario:
-	> "Mi nombre ahora es Tomás Díaz y también me gustaría que agregues leer y caminar a mis hobbies."
-
-	Salida:
-	{
-		"name": "Tomás",
-		"surname": "Díaz",
-		"age": null,
-		"gender": null,
-		"profesion": null,
-		"hobbies": ["leer", "caminar"]
-	}
-
-	Entrada del usuario:
-	> "Quiero cambiar mi correo y mi contraseña."
-
-	Salida:
-	{
+	{{
 		"name": null,
 		"surname": null,
 		"age": null,
 		"gender": null,
 		"profesion": null,
-		"hobbies": null
-	}
+		"hobbies": ["leer", "yoga"]
+	}}
 
 	Ahora analiza este mensaje del usuario y devuelve el objeto con los campos actualizados únicamente.
 
 	Mensaje:
-	""" + f"\n{message}"
-
+	{message}
+	"""
 
 	genai.configure(api_key=settings.gemini_api_key)
 	model = genai.GenerativeModel("models/gemini-2.0-flash")

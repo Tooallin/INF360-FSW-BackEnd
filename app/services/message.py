@@ -96,10 +96,11 @@ def generate_context(db: Session, k: int, user_msg_in: MessageCreate):
 	))
 	return ia.build_history(last_k, similar_k)
 
-def update_and_process_clinical_report(db: Session, message: MessageCreate, user_id: int):
+def update_and_process_medical_record(db: Session, message: MessageCreate, user_id: int):
 	#Actualizar historial clinico
 	try:
-		clinical_record = ia.new_clinical_record(message=message.content)
+		old_clinical_record = CrudUser.get_medical_record(db, user_id)
+		clinical_record = ia.new_clinical_record(message=message.content, hobbies_string=ia.format_clinical_record(old_clinical_record))
 		CrudUser.update_user(db, UserCreate(
 			name=clinical_record.name,
 			surname=clinical_record.surname,
