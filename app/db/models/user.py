@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from app.db.base import Base
 
@@ -12,3 +13,5 @@ class User(Base):
 	password = Column(String, nullable=False)
 	age = Column(Integer, nullable=True)
 	gender = Column(String, nullable=True)
+	profesion = Column(String, nullable=True)
+	hobbies = Column(ARRAY(String), nullable=True)

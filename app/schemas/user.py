@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class UserCreate(BaseModel):
 	name: str
@@ -8,6 +8,8 @@ class UserCreate(BaseModel):
 	password: str
 	age: Optional[int] = None      # Opcional
 	gender: Optional[str] = None   # Opcional
+	profesion: Optional[str] = None      # Opcional
+	hobbies: Optional[List[str]] = None   # Opcional
 
 class UserOut(UserCreate):
 	id: int
