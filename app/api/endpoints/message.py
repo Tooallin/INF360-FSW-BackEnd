@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from app.api import deps
 from app.schemas.message import MessageCreate, MessageRead, MessageIA
 from app.services.message import create, create_base, get_all
@@ -15,8 +15,8 @@ def CreateBase(db: Session = Depends(deps.get_db), user_id: int = Depends(get_id
 
 #Crear un nuevo mensaje en una conversacion para un usuario autenticado
 @router.post("/create", response_model=List[MessageRead])
-def Create(message: MessageCreate, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
-	return create(message=message, db=db, user_id=user_id)
+def Create(message: MessageCreate, background_tasks: BackgroundTasks, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
+	return create(message=message, db=db, user_id=user_id, background_tasks=background_tasks)
 
 #Obtener todos los mensajes de una conversacion para un usuario autenticado
 @router.get("/getall/{conversation_id}", response_model=List[MessageRead])

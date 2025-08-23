@@ -1,14 +1,18 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, BackgroundTasks, Depends
 from sqlalchemy.orm import Session
+
+from app.db.session import SessionLocal
 
 from app.crud import conversation as CrudConversation
 from app.crud import message as CrudMessage
 from app.crud import user as CrudUser
-from app.schemas.message import MessageCreate, MessageRead, MessageIA
-from app.utils import ia
-
 from app.crud import message_embedding as CrudMessageEmbedding
+
+from app.schemas.message import MessageCreate, MessageRead, MessageIA
+from app.schemas.user import UserCreate, UserUpdate
 from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
+
+from app.utils import ia
 
 def create_base(db: Session, user_id: int):
 	try:
@@ -26,7 +30,7 @@ def create_base(db: Session, user_id: int):
 
 	return MessageIA(content=base_text)
 
-def create(message: MessageCreate, db: Session, user_id: int):
+def create(message: MessageCreate, db: Session, user_id: int, background_tasks: BackgroundTasks):
 	#Verificamos que la conversacion pertenezca al usuario
 	conversation = CrudConversation.get_by_user_and_id(db, user_id, message.conversation_id)
 	if not conversation:
@@ -45,12 +49,12 @@ def create(message: MessageCreate, db: Session, user_id: int):
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=user_msg.id, embedding=ia.embed_message(user_msg.content)))
 
 	#Procesar y actualizar historial clinico
-	update_and_process_clinical_history(db, message, user_id)
+	background_tasks.add_task(update_and_process_clinical_history, message, user_id)
 
 	#Obtenemos una respuesta de la IA
 	try:
 		memory_size = 10
-		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_history(CrudUser.get_clinical_history()))
+		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_history(CrudUser.get_clinical_history(db, user_id)))
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -96,19 +100,22 @@ def generate_context(db: Session, k: int, user_msg_in: MessageCreate):
 	))
 	return ia.build_history(last_k, similar_k)
 
-def update_and_process_clinical_history(db: Session, message: MessageCreate, user_id: int):
+def update_and_process_clinical_history(message: MessageCreate, user_id: int):
+	db = SessionLocal()
 	#Actualizar historial clinico
 	try:
 		old_hobbies = CrudUser.get_hobbies(db, user_id)
 		clinical_history = ia.new_clinical_history(message=message.content, hobbies_string=ia.format_clinical_history(old_hobbies))
-		CrudUser.update_user(db, UserCreate(
-			name=clinical_history.name,
-			surname=clinical_history.surname,
-			age=clinical_history.age,
-			gender=clinical_history.age,
-			profesion=clinical_history.profesion,
-			hobbies=clinical_history.hobbies
+		print(clinical_history)
+		CrudUser.update_user(db, UserUpdate(
+			name=clinical_history["name"],
+			surname=clinical_history["surname"],
+			age=clinical_history["age"],
+			gender=clinical_history["gender"],
+			profesion=clinical_history["profesion"],
+			hobbies=clinical_history["hobbies"]
 		), user_id)
+		db.commit()
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -119,3 +126,5 @@ def update_and_process_clinical_history(db: Session, message: MessageCreate, use
 			status_code=status.HTTP_502_BAD_GATEWAY,
 			detail=f"Error al actualizar historial clínico: {str(e)}"
 		)
+	finally:
+		db.close()

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.db.models.user import User
-from app.schemas.user import UserCreate, UserLogin
+from app.schemas.user import UserCreate, UserLogin, UserUpdate
 
 def create(db: Session, user: UserCreate) -> User:
 	db_user = User(
@@ -30,21 +30,28 @@ def get_clinical_history(db: Session, id: int):
 def get_hobbies(db: Session, id: int):
     return db.query(User.hobbies).filter(User.id == id).first()
 
-def update_user(db: Session, user: UserCreate, user_id: int) -> User:
+def update_user(db: Session, user: UserUpdate, user_id: int) -> User:
     db_user = db.query(User).filter(User.id == user_id).first()
 
     if not db_user:
         return None
 
     # Actualizar campos existentes
-    db_user.name = user_data.name
-    db_user.surname = user_data.surname
-    db_user.email = user_data.email
-    db_user.password = user_data.password
-    db_user.age = user_data.age
-    db_user.gender = user_data.gender
-    db_user.profesion = user_data.profesion
-    db_user.hobbies = user_data.hobbies
+    if user.name:
+        db_user.name = user.name
+
+    db_user.surname = user.surname
+
+    if user.email:
+        db_user.email = user.email
+
+    if user.password:
+        db_user.password = user.password
+
+    db_user.age = user.age
+    db_user.gender = user.gender
+    db_user.profesion = user.profesion
+    db_user.hobbies = user.hobbies
 
     db.commit()
     db.refresh(db_user)

@@ -5,6 +5,9 @@ from typing import List, Tuple
 from app.core.config import settings
 from app.schemas.user import UserCreate
 
+import json
+import re
+
 def build_history(base: List[Tuple[str, str]], similar: List[Tuple[str, str]]) -> List[content_types.ContentDict]:
 	seen = set()
 	ordered: List[Tuple[str, str]] = []
@@ -114,7 +117,7 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 	return response.text
 
 def new_clinical_history(message: str, hobbies_string: str):
-	update_extraction_prompt = f"""
+	prompt = f"""
 	Eres un sistema que analiza texto en lenguaje natural para identificar cambios solicitados por el usuario en su perfil personal. Tu única tarea es revisar el contenido del mensaje y devolver un objeto estructurado en el siguiente formato, **sin explicar nada adicional**:
 
 	Formato de salida:
@@ -170,12 +173,18 @@ def new_clinical_history(message: str, hobbies_string: str):
 		parsed_output = json.loads(raw_output)
 		return parsed_output
 	except json.JSONDecodeError:
-		# Intenta corregir errores comunes si el modelo devolvió algo mal formateado
-		corrected = raw_output.replace("'", '"').replace("None", "null")
+		# Elimina bloque ```json ... ```
+		cleaned = re.sub(r"^```json|```$", "", raw_output, flags=re.MULTILINE).strip()
+		
+		# Reemplaza tabs por espacios o elimina
+		cleaned = cleaned.replace("\t", "").replace("None", "null").replace("'", '"')
+		print(cleaned)
+		# Intenta parsear nuevamente
 		try:
-			return json.loads(corrected)
-		except:
+			return json.loads(cleaned)
+		except Exception as e:
 			raise ValueError(f"No se pudo interpretar la respuesta del modelo:\n{raw_output}")
+
 
 def format_clinical_history(user_record: UserCreate):
     """

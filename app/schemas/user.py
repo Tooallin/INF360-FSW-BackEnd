@@ -11,6 +11,16 @@ class UserCreate(BaseModel):
 	profesion: Optional[str] = None      # Opcional
 	hobbies: Optional[List[str]] = None   # Opcional
 
+class UserUpdate(BaseModel):
+	name: Optional[str] = None  # Opcional
+	surname: Optional[str] = None  # Opcional
+	email: Optional[str] = None  # Opcional
+	password: Optional[str] = None  # Opcional
+	age: Optional[int] = None      # Opcional
+	gender: Optional[str] = None   # Opcional
+	profesion: Optional[str] = None      # Opcional
+	hobbies: Optional[List[str]] = None   # Opcional
+
 class UserOut(UserCreate):
 	id: int
 
