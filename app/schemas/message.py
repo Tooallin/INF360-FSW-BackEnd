@@ -26,3 +26,7 @@ class MessageRead(BaseModel):
 class MessageIA(BaseModel):
 	model_config = ConfigDict(from_attributes=True)
 	content: str
+
+class MessageTranscribed(BaseModel):
+	model_config = ConfigDict(from_attributes=True)
+	content: str

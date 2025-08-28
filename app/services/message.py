@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status, BackgroundTasks, Depends
+from fastapi import HTTPException, status, BackgroundTasks, Depends, UploadFile
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
@@ -8,10 +8,11 @@ from app.crud import message as CrudMessage
 from app.crud import user as CrudUser
 from app.crud import message_embedding as CrudMessageEmbedding
 
-from app.schemas.message import MessageCreate, MessageRead, MessageIA
+from app.schemas.message import MessageCreate, MessageRead, MessageIA, MessageTranscribed
 from app.schemas.user import UserCreate, UserUpdate
 from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
 
+from app.utils import transcribe
 from app.utils import ia
 
 def create_base(db: Session, user_id: int):
@@ -128,3 +129,9 @@ def update_and_process_clinical_history(message: MessageCreate, user_id: int):
 		)
 	finally:
 		db.close()
+
+async def transcribe(audio: UploadFile):
+	texto = await transcribe_audio(audio)
+	return MessageTranscribed(
+		content=texto
+	)

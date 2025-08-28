@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, UploadFile, File
 from app.api import deps
-from app.schemas.message import MessageCreate, MessageRead, MessageIA
-from app.services.message import create, create_base, get_all
+from app.schemas.message import MessageCreate, MessageRead, MessageIA, MessageTranscribed
+from app.services.message import create, create_base, get_all, transcribe
 from typing import List
 from sqlalchemy.orm import Session
 from app.utils.jwt_decode import get_id
@@ -22,3 +22,8 @@ def Create(message: MessageCreate, background_tasks: BackgroundTasks, db: Sessio
 @router.get("/getall/{conversation_id}", response_model=List[MessageRead])
 def GetAll(conversation_id: int, db: Session = Depends(deps.get_db), user_id: int = Depends(get_id)):
 	return get_all(db=db, user_id=user_id, conversation_id=conversation_id)
+
+#Transcribir mensaje (Recibe voz, retorna texto)
+@router.post("/transcribe", response_model=MessageTranscribed)
+async def Transcribe(audio: UploadFile = File(...), user_id: int = Depends(get_id)):
+	return await transcribe(audio=audio)
