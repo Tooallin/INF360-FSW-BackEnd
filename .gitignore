@@ -4,7 +4,7 @@ __pycache__
 .env
 .vscode
 .vscode/launch.json
-
+certs
 docker-compose.yaml
 BackendDockerfile
 PostgresDockerfile

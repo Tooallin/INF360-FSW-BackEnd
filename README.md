@@ -6,6 +6,9 @@
 ## Levantar el BackEnd en producción (terminal debe estar ubicada en la carpeta raíz del proyecto)
 ```uvicorn app.main:app --host 0.0.0.0 --port 8000```
 
+## Levantar el BackEnd en producción con HTTPS (terminal debe estar ubicada en la carpeta raíz del proyecto)
+```uvicorn app.main:app --host 0.0.0.0 --port 8000 --ssl-keyfile .\certs\localhost+4-key.pem --ssl-certfile .\certs\localhost+4.pem```
+
 ## Instalar dependencias
 ```pip install -r requirements.txt```
 
