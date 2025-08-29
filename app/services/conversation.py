@@ -27,3 +27,8 @@ def create(conversation: ConversationCreate, db: Session, user_id: int):
 
 def get_all(db: Session, user_id: int):
 	return CrudConversation.get_all(db, user_id)
+
+def update_title(db: Session, conversation_id: int, user_msg: str, ia_msg: str):
+	title = ia.generate_title(user_msg, ia_msg)
+	CrudConversation.update_title(db, conversation_id, title)
+	return

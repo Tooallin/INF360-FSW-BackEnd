@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
 
+from app.services import conversation as ServiceConversation
+
 from app.crud import conversation as CrudConversation
 from app.crud import message as CrudMessage
 from app.crud import user as CrudUser
@@ -40,6 +42,9 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 			detail=f"La conversación {message.conversation_id} no existe o no pertenece al usuario {user_id}"
 		)
 	
+	messages = CrudMessage.get_conversation(db, message.conversation_id)
+	create_title = len(messages) > 0 and (len(messages) % 20 == 0)
+
 	#Almacenamos el mensaje del usuario
 	user_msg_in = MessageCreate(
 		conversation_id=message.conversation_id,
@@ -77,6 +82,9 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=ia_msg.id, embedding=ia.embed_message(ia_msg.content)))
 
 	CrudConversation.update_date(db, message.conversation_id)
+	if create_title:
+		ServiceConversation.update_title(db, message.conversation_id, message.content, ia_content)	
+
 	#Retornamos ambos mensajes
 	return [user_msg, ia_msg]
 	

@@ -23,3 +23,9 @@ def update_date(db: Session, conversation_id: int):
         {Conversation.updated_at: func.now()}
     )
     db.commit()
+
+def update_title(db: Session, conversation_id: int, title: str):
+	db.query(Conversation).filter(Conversation.id == conversation_id).update(
+		{Conversation.title: title}
+	)
+	db.commit()

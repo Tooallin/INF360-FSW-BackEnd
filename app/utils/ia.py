@@ -212,3 +212,16 @@ def format_clinical_history(user_record: UserCreate):
 
     # Unir todo en un solo texto
     return " ".join(parts)
+
+def generate_title(user_msg, ia_msg):
+	prompt = f"""
+		Genera un titulo breve de maximo 3 palabras para la siguiente conversación:
+		- Mensaje del usuario: {user_msg}
+		- Respuesta de la IA: {ia_msg}
+		Devuelveme unicamente el titulo, nada mas.
+	"""
+
+	genai.configure(api_key=settings.gemini_api_key)
+	model = genai.GenerativeModel(settings.gemini_model)
+	response = model.generate_content(prompt)
+	return response.text
