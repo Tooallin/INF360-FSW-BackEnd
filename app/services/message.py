@@ -42,8 +42,9 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 			detail=f"La conversación {message.conversation_id} no existe o no pertenece al usuario {user_id}"
 		)
 	
-	messages = CrudMessage.get_conversation(db, message.conversation_id)
-	create_title = len(messages) > 0 and (len(messages) % 20 == 0)
+	#Esto es para en un futuro generar el titulo solo cada ciertos mensajes
+	#messages = CrudMessage.get_conversation(db, message.conversation_id)
+	#create_title = len(messages) >= 0 and (len(messages) % 20 == 0)
 
 	#Almacenamos el mensaje del usuario
 	user_msg_in = MessageCreate(
@@ -82,11 +83,11 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=ia_msg.id, embedding=ia.embed_message(ia_msg.content)))
 
 	CrudConversation.update_date(db, message.conversation_id)
-	if create_title:
-		ServiceConversation.update_title(db, message.conversation_id, message.content, ia_content)	
+	ServiceConversation.update_title(db, message.conversation_id, message.content, ia_content)	
+	title = ServiceConversation.get_title(db, message.conversation_id)
 
 	#Retornamos ambos mensajes
-	return [user_msg, ia_msg]
+	return [user_msg, ia_msg, title]
 	
 def get_all(db: Session, user_id: int, conversation_id: int):
 	#Verificamos que la conversacion pertenezca al usuario

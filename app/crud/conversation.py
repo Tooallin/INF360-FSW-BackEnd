@@ -29,3 +29,8 @@ def update_title(db: Session, conversation_id: int, title: str):
 		{Conversation.title: title}
 	)
 	db.commit()
+
+def get_title(db: Session, conversation_id: int):
+	conversation = db.get(Conversation, conversation_id)
+	return conversation.title
+	

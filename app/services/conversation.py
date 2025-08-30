@@ -31,4 +31,7 @@ def get_all(db: Session, user_id: int):
 def update_title(db: Session, conversation_id: int, user_msg: str, ia_msg: str):
 	title = ia.generate_title(user_msg, ia_msg)
 	CrudConversation.update_title(db, conversation_id, title)
-	return
+	return title
+
+def get_title(db: Session, conversation_id: int):
+	return CrudConversation.get_title(db, conversation_id)
