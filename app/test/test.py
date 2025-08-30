@@ -1,10 +1,12 @@
-# app/tester/ia_tester_endpoint.py
 import re
+import os
 import ast
 from typing import List, Dict
-from fastapi import APIRouter
 from app.schemas.user import UserCreate
-from app.main import generate
+from app.utils.ia import generate
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ruta_archivo = os.path.join(BASE_DIR, "test_cases.txt")
 
 UMBRAL_PALABRAS_BUENAS = 1
 
@@ -38,18 +40,10 @@ PALABRAS_CLAVE_INADECUADAS = [
 POOL_EMOCIONES = ['cansancio', 'frustración', 'gratitud', 'tristeza', 'miedo',
                   'alivio', 'esperanza', 'orgullo', 'alegría', 'neutro']
 
-
-
-router = APIRouter()
-
-
 def _buscar_coincidencias(texto: str, frases):
     texto_low = texto.lower()
     halladas = [kw for kw in frases if re.search(re.escape(kw.lower()), texto_low)]
     return list(dict.fromkeys(halladas))
-
-
-
 
 def analizar_respuesta(respuesta_texto, palabras_buenas):
     buenas_encontradas = _buscar_coincidencias(respuesta_texto, palabras_buenas)
@@ -66,22 +60,20 @@ def analizar_respuesta(respuesta_texto, palabras_buenas):
 
     return contiene_apoyo, contiene_inadecuadas, emociones_encontradas, buenas_encontradas, malas_encontradas
 
-
-
-
 def ejecutar_prueba(caso_de_prueba, user_record: UserCreate, context: List[Dict]):
     prompt_analisis = f"""
-Analiza el siguiente mensaje del usuario y responde:
-- Sé empático, comprensivo y de apoyo.
-- Incluye explícitamente una línea con: 'Emociones: <lista de emociones detectadas>'.
-- Solo considera emociones dentro del siguiente pool: {', '.join(POOL_EMOCIONES)}.
-- No uses palabras inadecuadas ni negativas.
-Mensaje del usuario: {caso_de_prueba['frase']}
-"""
+		Analiza el siguiente mensaje del usuario y responde:
+		- Sé empático, comprensivo y de apoyo.
+		- Incluye explícitamente una línea con: 'Emociones: <lista de emociones detectadas>'.
+		- Solo considera emociones dentro del siguiente pool: {', '.join(POOL_EMOCIONES)}.
+		- No uses palabras inadecuadas ni negativas.
+		Mensaje del usuario: {caso_de_prueba['frase']}
+	"""
     context = context[:]
     context.insert(0, {"role": "user", "parts": [{"text": prompt_analisis}]})
 
     try:
+
         respuesta_ia = generate(caso_de_prueba['frase'], context, user_record)
 
         contiene_apoyo, contiene_inadecuadas, emociones_detectadas, buenas, malas = analizar_respuesta(
@@ -111,9 +103,6 @@ Mensaje del usuario: {caso_de_prueba['frase']}
         'respuesta': respuesta_ia
     }
 
-
-
-
 def leer_casos_de_prueba_desde_archivo(nombre_archivo):
     casos = []
     with open(nombre_archivo, 'r', encoding='utf-8') as f:
@@ -128,7 +117,6 @@ def leer_casos_de_prueba_desde_archivo(nombre_archivo):
                     continue
     return casos
 
-
 def escribir_resultados_en_archivo(nombre_archivo, resultados, resumen): 
     with open(nombre_archivo, 'w', encoding='utf-8') as f: 
         for r in resultados: 
@@ -142,10 +130,7 @@ def escribir_resultados_en_archivo(nombre_archivo, resultados, resumen):
             f.write("\n" + "="*30 + "\n") 
             f.write(resumen)
 
-
-
-
-def ejecutar_todos_los_tests(user_record: UserCreate, context: List[Dict], archivo_casos="test_cases.txt"):
+def run_all_test(user_record: UserCreate, context: List[Dict], archivo_casos=ruta_archivo):
     casos_de_prueba = leer_casos_de_prueba_desde_archivo(archivo_casos)
     if not casos_de_prueba:
         return {"mensaje": "No se encontraron casos de prueba.", "resultados": []}
@@ -166,11 +151,3 @@ def ejecutar_todos_los_tests(user_record: UserCreate, context: List[Dict], archi
         f"Respuestas Adecuadas: {respuestas_adecuadas/total*100:.2f}%\n"
     )
     return {"mensaje": "Tests ejecutados correctamente", "resumen": resumen_texto, "resultados": resultados_pruebas}
-
-
-
-
-@router.post("/run-tests")
-def run_tests_endpoint(user: UserCreate):
-    context: List[Dict] = []
-    return ejecutar_todos_los_tests(user, context)
