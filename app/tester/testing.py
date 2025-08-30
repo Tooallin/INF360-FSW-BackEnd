@@ -129,6 +129,20 @@ def leer_casos_de_prueba_desde_archivo(nombre_archivo):
     return casos
 
 
+def escribir_resultados_en_archivo(nombre_archivo, resultados, resumen): 
+    with open(nombre_archivo, 'w', encoding='utf-8') as f: 
+        for r in resultados: 
+            f.write( 
+                f"Caso {r['id']}: Frase: \"{r['frase']}\", " 
+                f"Emoción correcta: {'Si ✅' if r['emocion_correcta'] else 'No ❌'}, " 
+                f"Respuesta Adecuada: {'Si ✅' if r['respuesta_adecuada'] else 'No ❌'}\n" ) 
+            if r.get('buenas'): f.write(f" - Palabras de apoyo detectadas: {', '.join(r['buenas'])}\n") 
+            if r.get('malas'): f.write(f" - ⚠️ Frases inadecuadas detectadas: {', '.join(r['malas'])}\n") 
+            if r.get('respuesta'): f.write(f" - Respuesta IA: {r['respuesta'].strip()}\n") 
+            f.write("\n" + "="*30 + "\n") 
+            f.write(resumen)
+
+
 
 
 def ejecutar_todos_los_tests(user_record: UserCreate, context: List[Dict], archivo_casos="test_cases.txt"):
