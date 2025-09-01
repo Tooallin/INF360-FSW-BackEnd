@@ -12,7 +12,7 @@ from app.schemas.message import MessageCreate, MessageRead, MessageIA, MessageTr
 from app.schemas.user import UserCreate, UserUpdate
 from app.schemas.message_embedding import MessageEmbeddingCreate, MessageEmbeddingGet
 
-from app.utils import transcribe
+from app.utils import transcribe as transcribe_utils
 from app.utils import ia
 
 def create_base(db: Session, user_id: int):
@@ -131,7 +131,7 @@ def update_and_process_clinical_history(message: MessageCreate, user_id: int):
 		db.close()
 
 async def transcribe(audio: UploadFile):
-	texto = await transcribe.transcribe(audio)
+	texto = await transcribe_utils.transcribe(audio)
 	return MessageTranscribed(
 		content=texto
 	)
