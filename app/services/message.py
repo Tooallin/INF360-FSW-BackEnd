@@ -130,7 +130,7 @@ def update_and_process_clinical_history(message: MessageCreate, user_id: int):
 	finally:
 		db.close()
 
-async def transcribe(audio: UploadFile):
+async def transcribe_message(audio: UploadFile) -> MessageTranscribed:
 	texto = await transcribe_utils.transcribe(audio)
 	return MessageTranscribed(
 		content=texto
