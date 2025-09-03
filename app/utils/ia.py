@@ -161,7 +161,6 @@ def new_clinical_history(message: str, hobbies_string: str):
 		except Exception as e:
 			raise ValueError(f"No se pudo interpretar la respuesta del modelo:\n{raw_output}")
 
-
 def format_clinical_history(user_record: UserCreate):
     """
     Genera un texto narrativo a partir de un objeto clínico con campos:
@@ -212,3 +211,57 @@ def format_clinical_history(user_record: UserCreate):
 
     # Unir todo en un solo texto
     return " ".join(parts)
+
+def truncate_words(s: str, max_words: int) -> str:
+	words = s.split()
+	if not words:
+		return ""
+	truncated = " ".join(words[:max_words])
+	return truncated + ("…" if len(words) > max_words else "")
+
+def propose_title(text: str, max_words: int = 8) -> str:
+	# 1) Normaliza el texto de entrada (igual a tu estilo original)
+	s = re.sub(r"\s+", " ", (text or "").strip())
+	s = s.strip("\"'")
+
+	if not s:
+		return ""
+
+	# 2) Intenta con Gemini
+	try:
+		genai.configure(api_key=settings.gemini_api_key)
+		model = genai.GenerativeModel(settings.gemini_model)
+
+		prompt = (
+			f"Eres un asistente que propone títulos MUY breves para conversaciones.\n"
+			f"Instrucciones:\n"
+			f"- Devuelve SOLO el título, sin comillas ni adornos.\n"
+			f"- Máximo {max_words} palabras.\n"
+			f"- Sé claro, directo y representativo del mensaje.\n"
+			f"- Español neutro.\n\n"
+			f"- Intenta de que el mensaje no sea agresivo ni seco, trata de utilizar palabras gentiles"
+			f"Mensaje del usuario:\n{s}\n\n"
+			f"Título:"
+		)
+
+		resp = model.generate_content(prompt)
+		title = (resp.text or "").strip()
+
+		# 3) Post-procesado por si devuelve varias líneas o adornos
+		title = title.splitlines()[0] if "\n" in title else title
+		title = re.sub(r"\s+", " ", title)          # compacta espacios
+		title = title.strip(" '\"")                  # quita comillas/bordes
+		title = re.sub(r"[–—-]\s*$", "", title)     # quita guiones finales
+
+		# 4) Asegura el límite de palabras (y agrega “…” si recortó)
+		title = truncate_words(title, max_words)
+
+		# 5) Si quedó algo útil, úsalo
+		if title:
+			return title
+	except Exception:
+		# No rompas el flujo por errores de red/cupo/etc.
+		pass
+
+	# 6) Fallback local si Gemini no ayudó
+	return truncate_words(s, max_words)

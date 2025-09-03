@@ -49,6 +49,15 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 	user_msg = CrudMessage.create(db, user_msg_in)
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=user_msg.id, embedding=ia.embed_message(user_msg.content)))
 
+	#Generar un titulo en caso de que no exista
+	try:
+		title = ia.propose_title(user_msg.content)
+		if title:  # evita escribir vacío
+			CrudConversation.set_title_if_empty(db, message.conversation_id, title)
+	except Exception:
+		# no bloquees el flujo por el título: continúa normal
+		pass
+
 	#Procesar y actualizar historial clinico
 	background_tasks.add_task(update_and_process_clinical_history, message, user_id)
 

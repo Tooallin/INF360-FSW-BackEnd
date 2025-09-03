@@ -1,6 +1,7 @@
 from app.db.models.conversation import Conversation
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
+from sqlalchemy import or_
 
 def create(db: Session, user_id: int) -> Conversation:
 	db_Conversation = Conversation(user_id=user_id)
@@ -23,3 +24,13 @@ def update_date(db: Session, conversation_id: int):
         {Conversation.updated_at: func.now()}
     )
     db.commit()
+
+def set_title_if_empty(db: Session, conversation_id: int, title: str):
+	db.query(Conversation).filter(
+		Conversation.id == conversation_id,
+		or_(Conversation.title == None, Conversation.title == "")
+	).update({
+		Conversation.title: title,
+		Conversation.updated_at: func.now()
+	})
+	db.commit()
