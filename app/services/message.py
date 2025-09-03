@@ -114,8 +114,8 @@ def update_and_process_clinical_history(message: MessageCreate, user_id: int):
 	db = SessionLocal()
 	#Actualizar historial clinico
 	try:
-		old_hobbies = CrudUser.get_hobbies(db, user_id)
-		clinical_history = ia.new_clinical_history(message=message.content, hobbies_string=ia.format_clinical_history(old_hobbies))
+		old_clinical_history = CrudUser.get_clinical_history(db, user_id)
+		clinical_history = ia.new_clinical_history(message=message.content, clinical_history=ia.format_clinical_history(old_clinical_history))
 		print(clinical_history)
 		CrudUser.update_user(db, UserUpdate(
 			name=clinical_history["name"],

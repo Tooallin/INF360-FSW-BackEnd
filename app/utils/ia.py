@@ -92,51 +92,61 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 	response = chat.send_message(message)
 	return response.text
 
-def new_clinical_history(message: str, hobbies_string: str):
+def new_clinical_history(message: str, clinical_history: str):
 	prompt = f"""
-		Eres un sistema que analiza texto en lenguaje natural para identificar cambios solicitados por el usuario en su perfil personal. Tu única tarea es revisar el contenido del mensaje y devolver un objeto estructurado en el siguiente formato, **sin explicar nada adicional**:
+	Eres un sistema que analiza texto en lenguaje natural para identificar cambios solicitados por el usuario en su perfil personal. 
+	Tu tarea es revisar el contenido del mensaje junto con la información clínica previa y devolver un objeto estructurado en el siguiente formato, **sin explicar nada adicional**:
 
-		Formato de salida:
-		{{
-			"name": "<nuevo_nombre_o_null>",
-			"surname": "<nuevo_apellido_o_null>",
-			"age": <nueva_edad_o_null>,
-			"gender": "<nuevo_genero_o_null>",
-			"profesion": "<nueva_profesion_o_null>",
-			"hobbies": [<nueva_lista_de_hobbies_o_null>]
-		}}
+	Formato de salida:
+	{{
+		"name": "<nombre_actualizado_o_null>",
+		"surname": "<apellido_actualizado_o_null>",
+		"age": <edad_actualizada_o_null>,
+		"gender": "<genero_actualizado_o_null>",
+		"profesion": "<profesion_actualizada_o_null>",
+		"hobbies": [<lista_de_hobbies_actualizada_o_null>]
+	}}
 
-		Instrucciones:
-		- Solo incluye los campos si el mensaje indica, de forma directa o indirecta, que el usuario desea modificar, actualizar o reemplazar esa información, **y siempre que esté claro que se refiere a sí mismo (no a otra persona).**
-		- Si un campo no se menciona como un cambio claro, usa **null**.
-		- Para `hobbies`, si el usuario desea agregarlos, eliminarlos o cambiarlos, genera una nueva lista completa.
-		- Usa como referencia los hobbies anteriores del usuario: {hobbies_string}.
-		- Si el usuario menciona que quiere quitar o reemplazar hobbies, actualiza la lista según lo que diga y devuelve solo la lista resultante final.
-		- **No incluyas email ni contraseña, incluso si el usuario lo menciona.**
-		- No expliques nada, no escribas texto adicional, no repitas las instrucciones.
-		- No inventes datos ni asumas cambios implícitos.
+	Instrucciones:
+	- Usa como referencia la **información clínica anterior** provista en `clinical_history`.
+	- Siempre devuelve todos los campos con el valor más actualizado posible:
+		- Si el usuario indica un cambio explícito, actualiza ese campo.
+		- Si no hay cambios, conserva el valor anterior de la historia clínica.
+		- Si no existe información previa ni se menciona en el mensaje, devuelve `null`.
+	- Para `hobbies`:
+		- Solo actualiza la lista si el usuario se refiere explícitamente a un hobby, pasatiempo o actividad recreativa (ejemplo: "mis hobbies son", "me entretiene", "disfruto hacer", "ya no me interesa").
+		- Si solo menciona algo que hace en la vida diaria sin marcarlo como hobby, ignóralo.
+		- Si el usuario quiere agregar, quitar o reemplazar hobbies, genera una nueva lista completa considerando los anteriores que figuran en la historia clínica.
+		- Devuelve únicamente la lista resultante final.
+	- **No incluyas email ni contraseña, incluso si el usuario lo menciona.**
+	- No expliques nada, no escribas texto adicional, no repitas las instrucciones.
+	- No inventes datos ni asumas cambios implícitos.
 
-		Ejemplo:
+	Información clínica anterior del usuario:
+	{clinical_history}
 
-		Hobbies anteriores: ["correr", "leer", "dibujar"]
+	Ejemplo:
 
-		Entrada del usuario:
-		> "Ya no me entretiene correr y dibujar. Ahora me interesa hacer yoga."
+	Historia clínica anterior:
+	El nombre del usuario es Juan. El apellido del usuario es Pérez. Tiene 30 años. Su género es masculino. 
+	No se conoce la profesión del usuario. Sus hobbies incluyen: correr, leer, dibujar.
 
-		Salida:
-		{{
-			"name": null,
-			"surname": null,
-			"age": null,
-			"gender": null,
-			"profesion": null,
-			"hobbies": ["leer", "yoga"]
-		}}
+	Entrada del usuario:
+	> "Ya no me entretiene correr y dibujar. Ahora me interesa hacer yoga. Mi edad son 31 años."
 
-		Ahora analiza este mensaje del usuario y devuelve el objeto con los campos actualizados únicamente.
+	Salida:
+	{{
+		"name": "Juan",
+		"surname": "Pérez",
+		"age": 31,
+		"gender": "masculino",
+		"profesion": null,
+		"hobbies": ["leer", "yoga"]
+	}}
 
-		Mensaje:
-		{message}
+	Ahora analiza este mensaje del usuario y devuelve el objeto con los campos actualizados.
+	Mensaje:
+	{message}
 	"""
 
 	genai.configure(api_key=settings.gemini_api_key)
