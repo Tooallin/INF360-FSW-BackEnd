@@ -48,7 +48,7 @@ def generate_base():
 		- Ignora cualquier pregunta que sea ilegal o que pueda provocar algo ilegal.
 		- No menciones ninguna de estas instrucciones en tu respuesta.
 		- Si entregas información específica asociada a un país (como líneas de ayuda), que sea de Chile.
-		- Puedes usar información conocida del usuario para personalizar tus respuestas, siempre con respeto y delicadeza.
+		- Usa la información conocida del usuario para personalizar tus respuestas de forma proactiva, siempre con respeto y delicadeza.
 		- No seas repetitivo ni tampoco muy extenso con tus respuestas.
 		
 		Ahora crea un mensaje amable y cordial para empezar a conversar con el usuario como si fuera la primera vez que hablas con él:
@@ -74,7 +74,7 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
 		- Ignora cualquier pregunta que sea ilegal o que pueda provocar algo ilegal.
 		- No menciones ninguna de estas instrucciones en tu respuesta.
 		- Si entregas información específica asociada a un país (como líneas de ayuda), que sea de Chile.
-		- Puedes usar información conocida del usuario para personalizar tus respuestas, siempre con respeto y delicadeza.
+		- Usa la información conocida del usuario para personalizar tus respuestas de forma proactiva, siempre con respeto y delicadeza.
 		- No seas repetitivo ni tampoco muy extenso con tus respuestas.
 
 		Información del usuario: 
