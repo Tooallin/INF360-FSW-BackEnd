@@ -56,7 +56,7 @@ def generate_base():
 	response = model.generate_content(prompt)
 	return response.text
 
-def generate(message: str, context: List[content_types.ContentDict], user_record: UserCreate):
+def generate(message: str, context: List[content_types.ContentDict], clinical_history: str):
 	base_instructions = f"""
 		Eres un asistente virtual compasivo. Tu trabajo es responder al mensaje del usuario de manera amable, solidaria y con inteligencia emocional.
 
@@ -74,7 +74,7 @@ def generate(message: str, context: List[content_types.ContentDict], user_record
         - No hagas suposiciones si no tienes información suficiente.
 
 		Información del usuario: 
-		{format_clinical_history(user_record)}
+		{clinical_history}
 	"""
 
 	genai.configure(api_key=settings.gemini_api_key)
