@@ -64,7 +64,7 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 	#Obtenemos una respuesta de la IA
 	try:
 		memory_size = 10
-		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_history(CrudUser.get_clinical_history(db, user_id)))
+		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), clinical_history=ia.format_clinical_history(CrudUser.get_clinical_history(db, user_id)))
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
