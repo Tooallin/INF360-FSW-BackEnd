@@ -49,13 +49,22 @@ def create(message: MessageCreate, db: Session, user_id: int, background_tasks: 
 	user_msg = CrudMessage.create(db, user_msg_in)
 	CrudMessageEmbedding.create(db, MessageEmbeddingCreate(message_id=user_msg.id, embedding=ia.embed_message(user_msg.content)))
 
+	#Generar un titulo en caso de que no exista
+	try:
+		title = ia.propose_title(user_msg.content)
+		if title:  # evita escribir vacío
+			CrudConversation.set_title_if_empty(db, message.conversation_id, title)
+	except Exception:
+		# no bloquees el flujo por el título: continúa normal
+		pass
+
 	#Procesar y actualizar historial clinico
 	background_tasks.add_task(update_and_process_clinical_history, message, user_id)
 
 	#Obtenemos una respuesta de la IA
 	try:
 		memory_size = 10
-		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), user_record=ia.format_clinical_history(CrudUser.get_clinical_history(db, user_id)))
+		ia_content = ia.generate(message=message.content, context=generate_context(db, memory_size, message), clinical_history=ia.format_clinical_history(CrudUser.get_clinical_history(db, user_id)))
 	except TimeoutError as e:
 		raise HTTPException(
 			status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -105,8 +114,8 @@ def update_and_process_clinical_history(message: MessageCreate, user_id: int):
 	db = SessionLocal()
 	#Actualizar historial clinico
 	try:
-		old_hobbies = CrudUser.get_hobbies(db, user_id)
-		clinical_history = ia.new_clinical_history(message=message.content, hobbies_string=ia.format_clinical_history(old_hobbies))
+		old_clinical_history = CrudUser.get_clinical_history(db, user_id)
+		clinical_history = ia.new_clinical_history(message=message.content, clinical_history=ia.format_clinical_history(old_clinical_history))
 		print(clinical_history)
 		CrudUser.update_user(db, UserUpdate(
 			name=clinical_history["name"],
